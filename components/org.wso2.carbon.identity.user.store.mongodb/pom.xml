@@ -18,10 +18,18 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon.identity</groupId>
+        <artifactId>identity-userstore-mongodb</artifactId>
+        <relativePath>../../pom.xml</relativePath>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2.carbon</groupId>
-    <artifactId>mongodb.userstoremanager</artifactId>
+    <groupId>org.wso2.carbon.identity.user.store.mongodb</groupId>
+    <artifactId>userstoremanager</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
@@ -114,11 +122,11 @@
                         <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${pom.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.mongodb.userstoremanager.internal
+                            org.wso2.carbon.identity.user.store.mongodb.userstoremanager.internal
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.carbon.mongodb.userstoremanager.internal,
-                            org.wso2.carbon.mongodb.*;
+                            !org.wso2.carbon.identity.user.store.mongodb.userstoremanager.internal,
+                            org.wso2.carbon.identity.user.store.mongodb.mongodb.*;
                             org.wso2.carbon.user.core.internal;
                         </Export-Package>
                         <Import-Package>
