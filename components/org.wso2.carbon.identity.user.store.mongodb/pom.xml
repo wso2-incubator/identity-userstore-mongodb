@@ -78,7 +78,7 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.user.store.mongodb.userstoremanager.internal,
-                            org.wso2.carbon.identity.user.store.mongodb.mongodb.*; version="${identity.userstore.mongodb.version}",
+                            org.wso2.carbon.identity.user.store.mongodb.*; version="${identity.userstore.mongodb.version}",
                             org.wso2.carbon.user.core.internal;
                         </Export-Package>
                         <Import-Package>
