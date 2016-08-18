@@ -104,6 +104,11 @@
                 <artifactId>org.wso2.carbon.user.core</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
+	    <dependency>
+            	<groupId>org.wso2.carbon</groupId>
+            	<artifactId>org.wso2.carbon.user.api</artifactId>
+            	<version>${carbon.kernel.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.um.ws.api</artifactId>
@@ -134,6 +139,26 @@
                 <artifactId>org.wso2.carbon.identity.user.store.mongodb.server.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
+            </dependency>
+	    <dependency>
+            	<groupId>org.json</groupId>
+            	<artifactId>json</artifactId>
+            	<version>${org.json.version}</version>
+            </dependency>
+            <dependency>
+            	<groupId>commons-logging</groupId>
+            	<artifactId>commons-logging</artifactId>
+            	<version>${org.commons.logging.version}</version>
+            </dependency>
+            <dependency>
+            	<groupId>org.jasypt</groupId>
+            	<artifactId>jasypt</artifactId>
+            	<version>${org.jasypt.version}</version>
+            </dependency>
+            <dependency>
+            	<groupId>org.mongodb</groupId>
+            	<artifactId>mongo-java-driver</artifactId>
+            	<version>${org.mongodb.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -177,7 +202,7 @@
     </pluginRepositories>
 
     <properties>
-        <identity.userstore.remote.version>${project.version}</identity.userstore.remote.version>
+        <identity.userstore.mongodb.version>5.1.2-SNAPSHOT</identity.userstore.mongodb.version>
 
         <carbon.kernel.version>4.4.7</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
@@ -186,6 +211,11 @@
         <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
         <axiom.wso2.version>1.2.11.wso2v10</axiom.wso2.version>
         <org.slf4j.verison>1.6.1</org.slf4j.verison>
+	<org.json.version>20160212</org.json.version>
+	<carbon.user.core.version>4.4.7</carbon.user.core.version>
+	<org.commons.logging.version>1.1.1</org.commons.logging.version>
+        <org.jasypt.version>1.9.2</org.jasypt.version>
+	<org.mongodb.version>3.2.2</org.mongodb.version>
         <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
         <osgi.framework.imp.pkg.version.range>[1.7.0, 2.0.0)</osgi.framework.imp.pkg.version.range>
