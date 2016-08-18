@@ -42,7 +42,7 @@ class MongoDBUserStoreConstants {
 
     }
         /*private static void setMandatoryProperty(String name, String value, String description) {
-	        Property property = new Property(name, value, description, null);
+            Property property = new Property(name, value, description, null);
 	        CUSTOM_UM_MANDATORY_PROPERTIES.add(property);
 
 	    }*/

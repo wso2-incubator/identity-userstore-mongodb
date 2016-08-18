@@ -43,237 +43,268 @@ public interface MongoPreparedStatement {
 
     /**
      * set int parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key       of json query
      * @param parameter value to set to query parameter
      */
-	void setInt(String key, int parameter);
+    void setInt(String key, int parameter);
 
     /**
      * set double parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key       of json query
      * @param parameter value to set to query parameter
      */
-	void setDouble(String key, double parameter);
+    void setDouble(String key, double parameter);
 
     /**
      * set String parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key       of json query
      * @param parameter value to set to query parameter
      */
-	void setString(String key, String parameter);
+    void setString(String key, String parameter);
 
     /**
      * set bson timestamp parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key       of json query
      * @param timeStamp value to set to query parameter
      */
-	void setTimeStamp(String key, BSONTimestamp timeStamp);
+    void setTimeStamp(String key, BSONTimestamp timeStamp);
 
     /**
      * set ArrayList parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key        of json query
      * @param parameters value to set to query parameter
      */
-	void setArray(String key, ArrayList<Object> parameters);
+    void setArray(String key, ArrayList<Object> parameters);
 
     /**
      * set Object parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key    of json query
      * @param object value to set to query parameter
      */
-	void setObject(String key, Object object);
+    void setObject(String key, Object object);
 
     /**
      * set date parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key  of json query
      * @param date value to set to query parameter
      */
-	void setDate(String key, Date date);
+    void setDate(String key, Date date);
 
     /**
      * set boolean parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key       of json query
      * @param parameter value to set to query parameter
      */
-	void setBoolean(String key, boolean parameter);
+    void setBoolean(String key, boolean parameter);
 
     /**
      * set DBRef parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key   of json query
      * @param dbRef value to set to query parameter
      */
-	void setDBPointer(String key, DBRef dbRef);
+    void setDBPointer(String key, DBRef dbRef);
 
     /**
      * set Symbol parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key    of json query
      * @param symbol value to set to query parameter
      */
-	void setSymbol(String key, Symbol symbol);
+    void setSymbol(String key, Symbol symbol);
 
     /**
      * set regular expression parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key       of json query
      * @param parameter value to set to query parameter
      */
-	void setRegularExpression(String key, String parameter);
+    void setRegularExpression(String key, String parameter);
 
     /**
      * set long parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key       of json query
      * @param parameter value to set to query parameter
      */
-	void setLong(String key, long parameter);
+    void setLong(String key, long parameter);
 
     /**
      * set binary parameter value to respective query parameter
-     * @param key of json query
+     *
+     * @param key    of json query
      * @param stream value to set to query parameter
      */
-	void setBinary(String key, Binary stream);
+    void setBinary(String key, Binary stream);
 
     /**
      * close the connection
      */
-	void close();
+    void close();
 
     /**
      * insert document to mongodb
-     * @return  WriteResult instance
+     *
+     * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult insert() throws MongoQueryException;
+    WriteResult insert() throws MongoQueryException;
 
     /**
      * search documents from mongodb
+     *
      * @return DBCursor instance
      * @throws MongoQueryException if any exception occurred
      */
-	DBCursor find() throws MongoQueryException;
+    DBCursor find() throws MongoQueryException;
 
     /**
      * search documents through aggregration pipeline from mongodb
+     *
      * @return AggregrationOutput instance
      * @throws UserStoreException if any exception occurred
      */
-	AggregationOutput aggregate() throws UserStoreException;
+    AggregationOutput aggregate() throws UserStoreException;
 
     /**
      * update document in mongodb
+     *
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult update() throws MongoQueryException;
+    WriteResult update() throws MongoQueryException;
 
     /**
      * update document to mongodb
+     *
      * @param upsert boolean status
-     * @param multi boolean status
+     * @param multi  boolean status
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult update(boolean upsert, boolean multi) throws MongoQueryException;
+    WriteResult update(boolean upsert, boolean multi) throws MongoQueryException;
 
     /**
      * update document to mongodb
-     * @param upsert boolean status
-     * @param multi boolean status
+     *
+     * @param upsert        boolean status
+     * @param multi         boolean status
      * @param aWriteConcern WriteConcern value
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern) throws MongoQueryException;
+    WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern) throws MongoQueryException;
 
     /**
      * update document to mongodb
-     * @param upsert boolean status
-     * @param multi boolean status
+     *
+     * @param upsert        boolean status
+     * @param multi         boolean status
      * @param aWriteConcern WriteConcern value
-     * @param encoder DBEncoder value
+     * @param encoder       DBEncoder value
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, DBEncoder encoder) throws MongoQueryException;
+    WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, DBEncoder encoder) throws MongoQueryException;
 
     /**
      * update document to mongodb
-     * @param upsert boolean status
-     * @param multi boolean status
-     * @param aWriteConcern WriteConcern value
+     *
+     * @param upsert                   boolean status
+     * @param multi                    boolean status
+     * @param aWriteConcern            WriteConcern value
      * @param byPassDocumentValidation boolean status
-     * @param encoder DBEncoder instance
+     * @param encoder                  DBEncoder instance
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, boolean byPassDocumentValidation, DBEncoder encoder) throws MongoQueryException;
+    WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, boolean byPassDocumentValidation, DBEncoder encoder) throws MongoQueryException;
 
     /**
      * update multiple documents mongodb
+     *
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult updateMulti() throws MongoQueryException;
+    WriteResult updateMulti() throws MongoQueryException;
 
     /**
      * remove document in mongodb
+     *
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult remove() throws MongoQueryException;
+    WriteResult remove() throws MongoQueryException;
 
     /**
      * remove document in mongodb
+     *
      * @param concern WriteConcern status
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult remove(WriteConcern concern) throws MongoQueryException;
+    WriteResult remove(WriteConcern concern) throws MongoQueryException;
 
     /**
      * remove document in mongodb
+     *
      * @param concern WriteConcern status
      * @param encoder DBEncoder instance
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	WriteResult remove(WriteConcern concern, DBEncoder encoder) throws MongoQueryException;
+    WriteResult remove(WriteConcern concern, DBEncoder encoder) throws MongoQueryException;
 
     /**
      * insert bulk documents to mongodb
+     *
      * @return BulkWriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	BulkWriteResult insertBulk() throws MongoQueryException;
+    BulkWriteResult insertBulk() throws MongoQueryException;
 
     /**
      * update bulk documents to mongodb
+     *
      * @return BulkWriteResult instance
      * @throws MongoQueryException if any exception occurred
      */
-	BulkWriteResult updateBulk() throws MongoQueryException;
+    BulkWriteResult updateBulk() throws MongoQueryException;
 
     /**
      * add document to batch to bulk insert
+     *
      * @throws MongoQueryException if any exception occurred
      */
     void addBatch() throws MongoQueryException;
 
     /**
      * add document to batch to bulk update
+     *
      * @throws MongoQueryException if any exception occurred
      */
     void updateBatch() throws MongoQueryException;
 
     /**
      * get distinct set of values from mongodb
+     *
      * @return List of distinct
      * @throws MongoQueryException if any exception occurred
      */
-	List distinct() throws MongoQueryException;
+    List distinct() throws MongoQueryException;
 
     /**
      * multiple lookup status
+     *
      * @param stat boolean status
      */
-	void multiLookUp(boolean stat);
+    void multiLookUp(boolean stat);
 }

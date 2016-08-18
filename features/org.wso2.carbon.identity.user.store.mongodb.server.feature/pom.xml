@@ -26,17 +26,17 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.user.store.mongodb.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.store.mongodb.server.feature</artifactId>
     <packaging>pom</packaging>
-    <name>MongoDB user store management Feature</name>
+    <name>MongoDB user store management Server Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the bundles required for mongodb user store management functionality</description>
+    <description>This feature contains the bundles required for mongodb user store management server functionality
+    </description>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.user.store.mongodb.server.feature</artifactId>
-            <type>zip</type>
+            <artifactId>org.wso2.carbon.identity.user.store.mongodb</artifactId>
         </dependency>
     </dependencies>
 
@@ -54,14 +54,20 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.user.store.mongodb</id>
-                            <propertiesFile>../etc/feature.properties</propertiesFile>
-
-                            <includedFeatures>
-                                <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.user.store.mongodb.server.feature
-                                </includedFeatureDef>
-                            </includedFeatures>
+                            <id>org.wso2.carbon.identity.user.store.mongodb.server</id>
+                            <propertiesFile>../../etc/feature.properties</propertiesFile>
+                            <adviceFile>
+                                <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
+                                </properties>
+                            </adviceFile>
+                            <bundles>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.user.store.mongodb</bundleDef>
+                            </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.version}
+                                </importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

@@ -27,7 +27,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>identity-userstore-mongodb</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>5.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon MongoDB Userstore Module</name>
     <description>
@@ -37,6 +37,7 @@
 
     <modules>
         <module>components/org.wso2.carbon.identity.user.store.mongodb</module>
+        <module>features/org.wso2.carbon.identity.user.store.mongodb.server.feature</module>
         <module>features/org.wso2.carbon.identity.user.store.mongodb.feature</module>
     </modules>
 
@@ -130,7 +131,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.user.store.mongodb.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.store.mongodb.server.feature</artifactId>
                 <version>${project.version}</version>
                 <type>zip</type>
             </dependency>
@@ -176,7 +177,7 @@
     </pluginRepositories>
 
     <properties>
-        <identity.userstore.mongodb.version>${project.version}</identity.userstore.mongodb.version>
+        <identity.userstore.remote.version>${project.version}</identity.userstore.remote.version>
 
         <carbon.kernel.version>4.4.7</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
@@ -278,7 +279,4 @@
     </build>
 
 </project>
-
-
-
 

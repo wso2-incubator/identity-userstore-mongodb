@@ -23,15 +23,15 @@
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-userstore-mongodb</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>5.1.2-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2.carbon.identity.user.store.mongodb</groupId>
-    <artifactId>userstoremanager</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>org.wso2.carbon.identity.user.store.mongodb</artifactId>
     <packaging>bundle</packaging>
+    <name>WSO2 Carbon MongoDB Userstore</name>
+    <description>WSO2 Carbon MongoDB Userstore</description>
 
     <repositories>
         <repository>
