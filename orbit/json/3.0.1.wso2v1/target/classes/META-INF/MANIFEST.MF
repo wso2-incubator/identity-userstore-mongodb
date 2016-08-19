@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1471613991804
+Build-Jdk: 1.8.0_101
+Built-By: asantha
+Bundle-Description: This bundle will export packages from JSON libraries
+  of org.json
+Bundle-ManifestVersion: 2
+Bundle-Name: json
+Bundle-SymbolicName: json
+Bundle-Version: 3.0.1.wso2v1
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.json;version="3.0.1.wso2v1"
+Tool: Bnd-2.1.0.20130426-122213

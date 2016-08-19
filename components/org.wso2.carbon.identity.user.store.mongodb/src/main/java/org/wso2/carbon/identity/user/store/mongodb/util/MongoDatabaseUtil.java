@@ -87,7 +87,6 @@ public class MongoDatabaseUtil {
      * @return DB connection
      */
     public static DB createRealmDataSource(RealmConfiguration realmConfiguration) {
-        // TODO Auto-generated method stub
         List<ServerAddress> seeds = new ArrayList<ServerAddress>();
         char[] pass;
         int port;
@@ -136,6 +135,9 @@ public class MongoDatabaseUtil {
         int value = -1;
         JSONObject jsonKeys = new JSONObject(stmt);
         List<String> keys = getKeys(jsonKeys);
+        if(dbConnection == null){
+            throw new UserStoreException("Database Connection is null");
+        }
         try {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
             for (String key : keys) {
@@ -158,12 +160,8 @@ public class MongoDatabaseUtil {
                 value = (int) Double.parseDouble(cursor.next().get("UM_ID").toString());
             }
             return value;
-        } catch (NullPointerException ex) {
-            log.error(ex.getMessage(), ex);
-            throw new UserStoreException(ex.getMessage(), ex);
         } catch (MongoQueryException ex) {
-            log.error(ex.getMessage(), ex);
-            log.error("Using JSON Query :" + stmt);
+            log.error("Error:"+ex.getMessage()+"Using JSON Query:"+stmt, ex);
             throw new UserStoreException(ex.getMessage(), ex);
         } finally {
             MongoDatabaseUtil.closeAllConnections(dbConnection, prepStmt);
@@ -240,8 +238,7 @@ public class MongoDatabaseUtil {
             }
         } catch (MongoQueryException ex) {
 
-            log.error(ex.getMessage(), ex);
-            log.error("Using json : " + stmt);
+            log.error("Error:"+ex.getMessage()+"Using json:"+stmt, ex);
             throw new UserStoreException(ex.getMessage(), ex);
         } finally {
             if (localConnection) {
@@ -278,8 +275,7 @@ public class MongoDatabaseUtil {
             }
         } catch (MongoQueryException ex) {
 
-            log.error(ex.getMessage(), ex);
-            log.error("Using json : " + stmt);
+            log.error("Error:"+ex.getMessage()+"Using json:"+stmt, ex);
             throw new UserStoreException(ex.getMessage(), ex);
         } finally {
             if (localConnection) {
@@ -315,8 +311,7 @@ public class MongoDatabaseUtil {
             }
         } catch (MongoQueryException ex) {
 
-            log.error(ex.getMessage(), ex);
-            log.error("Using json : " + stmt);
+            log.error("Error:"+ex.getMessage()+"Using json:"+stmt, ex);
             throw new UserStoreException(ex.getMessage(), ex);
         } finally {
             if (localConnection) {
@@ -368,8 +363,7 @@ public class MongoDatabaseUtil {
                 log.debug("Executed query is " + stmt + " and number of updated rows :: " + result.getN());
             }
         } catch (MongoQueryException ex) {
-            log.error("Error! " + ex.getMessage(), ex);
-            log.error("Using json " + stmt);
+            log.error("Error:"+ex.getMessage()+"Using json:"+stmt, ex);
             throw new UserStoreException("Error! " + ex.getMessage(), ex);
         } catch (Exception e) {
             log.error("Error! " + e.getMessage(), e);
@@ -416,8 +410,7 @@ public class MongoDatabaseUtil {
                 log.debug("Executed query is " + stmt + " and number of deleted documents :: " + result.getN());
             }
         } catch (MongoQueryException ex) {
-            log.error("Error! " + ex.getMessage(), ex);
-            log.error("Using json " + stmt);
+            log.error("Error:"+ex.getMessage()+"Using json:"+stmt, ex);
             throw new UserStoreException("Error! " + ex.getMessage(), ex);
         } catch (Exception e) {
             log.error("Error! " + e.getMessage(), e);
@@ -460,7 +453,7 @@ public class MongoDatabaseUtil {
             keys.add(index, key);
             if (stmt.get(key) instanceof JSONObject) {
                 JSONObject value = stmt.getJSONObject(key);
-                key = value.keys().next();
+                key = value.keys().next().toString();
                 if (key.equals("$set")) {
 
                     String names[] = JSONObject.getNames(value.getJSONObject(key));
@@ -654,6 +647,9 @@ public class MongoDatabaseUtil {
         String[] values = new String[0];
         JSONObject jsonKeys = new JSONObject(mongoQuery);
         List<String> keys;
+        if(dbConnection==null){
+            throw new UserStoreException("DBConnection Cannot be null");
+        }
         if (isAggregrate) {
 
             keys = getKeys(jsonKeys.getJSONObject("$match"));
@@ -714,16 +710,11 @@ public class MongoDatabaseUtil {
                 }
             }
             return values;
-        } catch (NullPointerException ex) {
-            log.error(ex.getMessage(), ex);
-            throw new UserStoreException(ex.getMessage(), ex);
-        } catch (MongoQueryException ex) {
-            log.error(ex.getMessage(), ex);
-            log.error("Using JSON Query :" + mongoQuery);
+        }catch (MongoQueryException ex) {
+            log.error("Error:"+ex.getMessage()+"Using json:"+mongoQuery, ex);
             throw new UserStoreException(ex.getMessage(), ex);
         } catch (org.wso2.carbon.user.api.UserStoreException ex) {
-            log.error(ex.getMessage(), ex);
-            log.error("Using JSON Query :" + mongoQuery);
+            log.error("Error:"+ex.getMessage()+"Using json:"+mongoQuery, ex);
             throw new UserStoreException(ex.getMessage(), ex);
         } finally {
             MongoDatabaseUtil.closeAllConnections(dbConnection, prepStmt);
@@ -947,6 +938,9 @@ public class MongoDatabaseUtil {
         JSONObject jsonKeys = new JSONObject(mongoQuery);
         List<String> keys;
         keys = getKeys(jsonKeys);
+        if(dbConnection==null){
+            throw new UserStoreException("DBConnection cannot be null");
+        }
         try {
             Iterator<String> searchKeys = keys.iterator();
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
@@ -978,16 +972,11 @@ public class MongoDatabaseUtil {
                 }
             }
             return values;
-        } catch (NullPointerException ex) {
-            log.error(ex.getMessage(), ex);
-            throw new UserStoreException(ex.getMessage(), ex);
-        } catch (MongoQueryException ex) {
-            log.error(ex.getMessage(), ex);
-            log.error("Using JSON Query :" + mongoQuery);
+        }catch (MongoQueryException ex) {
+            log.error("Error:"+ex.getMessage()+"Using json:"+mongoQuery, ex);
             throw new UserStoreException(ex.getMessage(), ex);
         } finally {
             MongoDatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
-
     }
 }

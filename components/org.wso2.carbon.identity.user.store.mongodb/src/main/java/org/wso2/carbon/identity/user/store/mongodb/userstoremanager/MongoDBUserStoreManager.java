@@ -3384,7 +3384,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
 
     /**
-     * TODO move to API
+     *
      *
      * @return whether the shared group enabled or not
      */

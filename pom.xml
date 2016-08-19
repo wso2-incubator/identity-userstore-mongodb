@@ -38,6 +38,7 @@
 
     <modules>
         <module>components/org.wso2.carbon.identity.user.store.mongodb</module>
+        <module>orbit/json/3.0.1.wso2v1</module>
         <module>features/org.wso2.carbon.identity.user.store.mongodb.server.feature</module>
         <module>features/org.wso2.carbon.identity.user.store.mongodb.feature</module>
     </modules>
@@ -212,7 +213,7 @@
         <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
         <axiom.wso2.version>1.2.11.wso2v10</axiom.wso2.version>
         <org.slf4j.verison>1.6.1</org.slf4j.verison>
-        <org.json.version>20140107</org.json.version>
+        <org.json.version>20160212</org.json.version>
         <carbon.user.core.version>4.4.7</carbon.user.core.version>
         <org.commons.logging.version>1.1.1</org.commons.logging.version>
         <org.jasypt.version>1.9.2</org.jasypt.version>

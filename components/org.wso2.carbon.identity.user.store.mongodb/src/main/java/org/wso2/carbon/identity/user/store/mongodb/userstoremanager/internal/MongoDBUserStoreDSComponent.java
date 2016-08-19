@@ -51,12 +51,10 @@ public class MongoDBUserStoreDSComponent {
         cc.getBundleContext().registerService(UserStoreManager.class.getName(), userStoreManager, null);
         log.info("MongoDB User Store bundle activated successfully..");
         UserStoreManagerRegistry.init(cc.getBundleContext());
-        System.out.println("Mongo Started");
     }
 
     @SuppressWarnings({"RedundantThrows", "UnusedParameters"})
     protected void deactivate(ComponentContext cc) throws Exception {
-        System.out.println("MongoDB Bundle Shutting down");
         if (log.isDebugEnabled()) {
             log.debug("MongoDB User Store Manager is deactivated ");
         }
