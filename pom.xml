@@ -16,7 +16,8 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -43,7 +44,8 @@
 
     <scm>
         <url>https://github.com/wso2-extensions/identity-userstore-mongodb.git</url>
-        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-userstore-mongodb.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-userstore-mongodb.git
+        </developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/identity-userstore-mongodb.git</connection>
         <tag>HEAD</tag>
     </scm>
@@ -104,10 +106,10 @@
                 <artifactId>org.wso2.carbon.user.core</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-	    <dependency>
-            	<groupId>org.wso2.carbon</groupId>
-            	<artifactId>org.wso2.carbon.user.api</artifactId>
-            	<version>${carbon.kernel.version}</version>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.user.api</artifactId>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
@@ -140,29 +142,28 @@
                 <version>${project.version}</version>
                 <type>zip</type>
             </dependency>
-	    <dependency>
-            	<groupId>org.json</groupId>
-            	<artifactId>json</artifactId>
-            	<version>${org.json.version}</version>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json.version}</version>
             </dependency>
             <dependency>
-            	<groupId>commons-logging</groupId>
-            	<artifactId>commons-logging</artifactId>
-            	<version>${org.commons.logging.version}</version>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${org.commons.logging.version}</version>
             </dependency>
             <dependency>
-            	<groupId>org.jasypt</groupId>
-            	<artifactId>jasypt</artifactId>
-            	<version>${org.jasypt.version}</version>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>${org.jasypt.version}</version>
             </dependency>
             <dependency>
-            	<groupId>org.mongodb</groupId>
-            	<artifactId>mongo-java-driver</artifactId>
-            	<version>${org.mongodb.version}</version>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>${org.mongodb.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 
 
     <pluginRepositories>
@@ -211,11 +212,11 @@
         <axis2.osgi.version.range>[1.6.1.wso2v12, 2.0.0)</axis2.osgi.version.range>
         <axiom.wso2.version>1.2.11.wso2v10</axiom.wso2.version>
         <org.slf4j.verison>1.6.1</org.slf4j.verison>
-	<org.json.version>20160212</org.json.version>
-	<carbon.user.core.version>4.4.7</carbon.user.core.version>
-	<org.commons.logging.version>1.1.1</org.commons.logging.version>
+        <org.json.version>20140107</org.json.version>
+        <carbon.user.core.version>4.4.7</carbon.user.core.version>
+        <org.commons.logging.version>1.1.1</org.commons.logging.version>
         <org.jasypt.version>1.9.2</org.jasypt.version>
-	<org.mongodb.version>3.2.2</org.mongodb.version>
+        <org.mongodb.version>3.2.2</org.mongodb.version>
         <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
         <osgi.framework.imp.pkg.version.range>[1.7.0, 2.0.0)</osgi.framework.imp.pkg.version.range>
