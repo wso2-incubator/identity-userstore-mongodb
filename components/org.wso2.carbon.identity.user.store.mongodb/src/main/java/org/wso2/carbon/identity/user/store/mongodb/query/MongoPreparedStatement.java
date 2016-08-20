@@ -42,7 +42,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 public interface MongoPreparedStatement {
 
     /**
-     * set int parameter value to respective query parameter
+     * Set int parameter value to respective query parameter
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -50,7 +50,7 @@ public interface MongoPreparedStatement {
     void setInt(String key, int parameter);
 
     /**
-     * set double parameter value to respective query parameter
+     * Set double parameter value to respective query parameter
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -58,7 +58,7 @@ public interface MongoPreparedStatement {
     void setDouble(String key, double parameter);
 
     /**
-     * set String parameter value to respective query parameter
+     * Set String parameter value to respective query parameter
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -66,7 +66,7 @@ public interface MongoPreparedStatement {
     void setString(String key, String parameter);
 
     /**
-     * set bson timestamp parameter value to respective query parameter
+     * Set bson timestamp parameter value to respective query parameter
      *
      * @param key       of json query
      * @param timeStamp value to set to query parameter
@@ -74,7 +74,7 @@ public interface MongoPreparedStatement {
     void setTimeStamp(String key, BSONTimestamp timeStamp);
 
     /**
-     * set ArrayList parameter value to respective query parameter
+     * Set ArrayList parameter value to respective query parameter
      *
      * @param key        of json query
      * @param parameters value to set to query parameter
@@ -82,7 +82,7 @@ public interface MongoPreparedStatement {
     void setArray(String key, ArrayList<Object> parameters);
 
     /**
-     * set Object parameter value to respective query parameter
+     * Set Object parameter value to respective query parameter
      *
      * @param key    of json query
      * @param object value to set to query parameter
@@ -90,7 +90,7 @@ public interface MongoPreparedStatement {
     void setObject(String key, Object object);
 
     /**
-     * set date parameter value to respective query parameter
+     * Set date parameter value to respective query parameter
      *
      * @param key  of json query
      * @param date value to set to query parameter
@@ -98,7 +98,7 @@ public interface MongoPreparedStatement {
     void setDate(String key, Date date);
 
     /**
-     * set boolean parameter value to respective query parameter
+     * Set boolean parameter value to respective query parameter
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -106,7 +106,7 @@ public interface MongoPreparedStatement {
     void setBoolean(String key, boolean parameter);
 
     /**
-     * set DBRef parameter value to respective query parameter
+     * Set DBRef parameter value to respective query parameter
      *
      * @param key   of json query
      * @param dbRef value to set to query parameter
@@ -114,7 +114,7 @@ public interface MongoPreparedStatement {
     void setDBPointer(String key, DBRef dbRef);
 
     /**
-     * set Symbol parameter value to respective query parameter
+     * Set Symbol parameter value to respective query parameter
      *
      * @param key    of json query
      * @param symbol value to set to query parameter
@@ -122,7 +122,7 @@ public interface MongoPreparedStatement {
     void setSymbol(String key, Symbol symbol);
 
     /**
-     * set regular expression parameter value to respective query parameter
+     * Set regular expression parameter value to respective query parameter
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -130,7 +130,7 @@ public interface MongoPreparedStatement {
     void setRegularExpression(String key, String parameter);
 
     /**
-     * set long parameter value to respective query parameter
+     * Set long parameter value to respective query parameter
      *
      * @param key       of json query
      * @param parameter value to set to query parameter
@@ -138,7 +138,7 @@ public interface MongoPreparedStatement {
     void setLong(String key, long parameter);
 
     /**
-     * set binary parameter value to respective query parameter
+     * Set binary parameter value to respective query parameter
      *
      * @param key    of json query
      * @param stream value to set to query parameter
@@ -151,7 +151,7 @@ public interface MongoPreparedStatement {
     void close();
 
     /**
-     * insert document to mongodb
+     * Insert document to mongodb
      *
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
@@ -159,7 +159,7 @@ public interface MongoPreparedStatement {
     WriteResult insert() throws MongoQueryException;
 
     /**
-     * search documents from mongodb
+     * Search documents from mongodb
      *
      * @return DBCursor instance
      * @throws MongoQueryException if any exception occurred
@@ -167,7 +167,7 @@ public interface MongoPreparedStatement {
     DBCursor find() throws MongoQueryException;
 
     /**
-     * search documents through aggregration pipeline from mongodb
+     * Search documents through aggregration pipeline from mongodb
      *
      * @return AggregrationOutput instance
      * @throws UserStoreException if any exception occurred
@@ -175,7 +175,7 @@ public interface MongoPreparedStatement {
     AggregationOutput aggregate() throws UserStoreException;
 
     /**
-     * update document in mongodb
+     * Update document in mongodb
      *
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
@@ -183,7 +183,7 @@ public interface MongoPreparedStatement {
     WriteResult update() throws MongoQueryException;
 
     /**
-     * update document to mongodb
+     * Update document to mongodb
      *
      * @param upsert boolean status
      * @param multi  boolean status
@@ -193,7 +193,7 @@ public interface MongoPreparedStatement {
     WriteResult update(boolean upsert, boolean multi) throws MongoQueryException;
 
     /**
-     * update document to mongodb
+     * Update document to mongodb
      *
      * @param upsert        boolean status
      * @param multi         boolean status
@@ -204,7 +204,7 @@ public interface MongoPreparedStatement {
     WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern) throws MongoQueryException;
 
     /**
-     * update document to mongodb
+     * Update document to mongodb
      *
      * @param upsert        boolean status
      * @param multi         boolean status
@@ -216,7 +216,7 @@ public interface MongoPreparedStatement {
     WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, DBEncoder encoder) throws MongoQueryException;
 
     /**
-     * update document to mongodb
+     * Update document to mongodb
      *
      * @param upsert                   boolean status
      * @param multi                    boolean status
@@ -229,7 +229,7 @@ public interface MongoPreparedStatement {
     WriteResult update(boolean upsert, boolean multi, WriteConcern aWriteConcern, boolean byPassDocumentValidation, DBEncoder encoder) throws MongoQueryException;
 
     /**
-     * update multiple documents mongodb
+     * Update multiple documents mongodb
      *
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
@@ -237,7 +237,7 @@ public interface MongoPreparedStatement {
     WriteResult updateMulti() throws MongoQueryException;
 
     /**
-     * remove document in mongodb
+     * Remove document in mongodb
      *
      * @return WriteResult instance
      * @throws MongoQueryException if any exception occurred
@@ -245,7 +245,7 @@ public interface MongoPreparedStatement {
     WriteResult remove() throws MongoQueryException;
 
     /**
-     * remove document in mongodb
+     * Remove document in mongodb
      *
      * @param concern WriteConcern status
      * @return WriteResult instance
@@ -254,7 +254,7 @@ public interface MongoPreparedStatement {
     WriteResult remove(WriteConcern concern) throws MongoQueryException;
 
     /**
-     * remove document in mongodb
+     * Remove document in mongodb
      *
      * @param concern WriteConcern status
      * @param encoder DBEncoder instance
@@ -264,7 +264,7 @@ public interface MongoPreparedStatement {
     WriteResult remove(WriteConcern concern, DBEncoder encoder) throws MongoQueryException;
 
     /**
-     * insert bulk documents to mongodb
+     * Insert bulk documents to mongodb
      *
      * @return BulkWriteResult instance
      * @throws MongoQueryException if any exception occurred
@@ -272,7 +272,7 @@ public interface MongoPreparedStatement {
     BulkWriteResult insertBulk() throws MongoQueryException;
 
     /**
-     * update bulk documents to mongodb
+     * Update bulk documents to mongodb
      *
      * @return BulkWriteResult instance
      * @throws MongoQueryException if any exception occurred
@@ -280,21 +280,21 @@ public interface MongoPreparedStatement {
     BulkWriteResult updateBulk() throws MongoQueryException;
 
     /**
-     * add document to batch to bulk insert
+     * Add document to batch to bulk insert
      *
      * @throws MongoQueryException if any exception occurred
      */
     void addBatch() throws MongoQueryException;
 
     /**
-     * add document to batch to bulk update
+     * Add document to batch to bulk update
      *
      * @throws MongoQueryException if any exception occurred
      */
     void updateBatch() throws MongoQueryException;
 
     /**
-     * get distinct set of values from mongodb
+     * Get distinct set of values from mongodb
      *
      * @return List of distinct
      * @throws MongoQueryException if any exception occurred
@@ -302,7 +302,7 @@ public interface MongoPreparedStatement {
     List distinct() throws MongoQueryException;
 
     /**
-     * multiple lookup status
+     * Multiple lookup status
      *
      * @param stat boolean status
      */
