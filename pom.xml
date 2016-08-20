@@ -38,7 +38,7 @@
 
     <modules>
         <module>components/org.wso2.carbon.identity.user.store.mongodb</module>
-        <module>orbit/json/3.0.1.wso2v1</module>
+        <module>orbit/json/3.0.0.wso2v2</module>
         <module>features/org.wso2.carbon.identity.user.store.mongodb.server.feature</module>
         <module>features/org.wso2.carbon.identity.user.store.mongodb.feature</module>
     </modules>

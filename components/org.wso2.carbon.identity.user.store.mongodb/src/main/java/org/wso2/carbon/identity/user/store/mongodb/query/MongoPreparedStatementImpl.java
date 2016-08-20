@@ -77,6 +77,18 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     private boolean isCaseSensitive = true;
     private Map<String, Object> mapMatchCaseInSensitive = null;
     private Map<String, Object> mapCaseQuery = null;
+    private final String LOOK_UP = "$lookup";
+    private final String UNWIND = "$unwind";
+    private final String MATCH = "$match";
+    private final String COLLECTION = "collection";
+    private final String REGEX = "$regex";
+    private final String PROJECTION = "projection";
+    private final String PROJECT = "$project";
+    private final String SORT = "$sort";
+    private final String GROUP = "$group";
+    private final String OPTIONS = "$options";
+    private final String SET = "$set";
+    private final String USER_NAME = "UM_USER_NAME";
 
     /**
      * Constructor with two arguments
@@ -253,7 +265,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             //add lookup attribute to pipeline
             if (mapLookUp != null) {
                 if (isMultipleLookUp()) {
-                    DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(mapLookUp));
+                    DBObject lookup = new BasicDBObject(LOOK_UP, new BasicDBObject(mapLookUp));
                     pipeline.add(lookup);
                 } else {
                     int track = 0;
@@ -262,12 +274,12 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                         for (Map<String, Object> map : multiMapLookup) {
                             if (map.containsKey("dependency")) {
                                 map.remove("dependency");
-                                DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
+                                DBObject lookup = new BasicDBObject(LOOK_UP, new BasicDBObject(map));
                                 if (!pipeline.contains(lookup)) {
                                     for (Map<String, Object> unwindSearch : multiMapUnwind) {
                                         String key = "$" + map.get("as");
                                         if (unwindSearch.containsValue(key) && !pipeline.isEmpty()) {
-                                            DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(unwindSearch));
+                                            DBObject unwind = new BasicDBObject(UNWIND, new BasicDBObject(unwindSearch));
                                             pipeline.add(unwind);
                                             pipeline.add(lookup);
                                             track++;
@@ -275,13 +287,13 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                                     }
                                 }
                             } else {
-                                DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
+                                DBObject lookup = new BasicDBObject(LOOK_UP, new BasicDBObject(map));
                                 if (!pipeline.contains(lookup)) {
                                     pipeline.add(lookup);
                                     for (Map<String, Object> unwindSearch : multiMapUnwind) {
                                         String key = "$" + map.get("as");
                                         if (unwindSearch.containsValue(key)) {
-                                            DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(unwindSearch));
+                                            DBObject unwind = new BasicDBObject(UNWIND, new BasicDBObject(unwindSearch));
                                             pipeline.add(unwind);
                                             track++;
                                         }
@@ -295,7 +307,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             //add unwind attribute to pipeline
             if (mapUnwind != null) {
                 if (isMultipleLookUp()) {
-                    DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(mapUnwind));
+                    DBObject unwind = new BasicDBObject(UNWIND, new BasicDBObject(mapUnwind));
                     pipeline.add(unwind);
                 }
             }
@@ -303,26 +315,26 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             if (mapMatch != null) {
                 DBObject match;
                 if (this.isCaseSensitive) {
-                    match = new BasicDBObject("$match", new BasicDBObject(mapMatch));
+                    match = new BasicDBObject(MATCH, new BasicDBObject(mapMatch));
                 } else {
 
-                    match = new BasicDBObject("$match", new BasicDBObject(mapMatch).append("UM_USER_NAME", new BasicDBObject(mapMatchCaseInSensitive)));
+                    match = new BasicDBObject(MATCH, new BasicDBObject(mapMatch).append(USER_NAME, new BasicDBObject(mapMatchCaseInSensitive)));
                 }
                 pipeline.add(match);
             }
             //add sort attribute to pipeline
             if (mapSort != null) {
-                DBObject sort = new BasicDBObject("$sort", new BasicDBObject(mapSort));
+                DBObject sort = new BasicDBObject(SORT, new BasicDBObject(mapSort));
                 pipeline.add(sort);
             }
             //add group attribute to pipeline
             if (mapGroup != null) {
-                DBObject group = new BasicDBObject("$group", new BasicDBObject(mapGroup));
+                DBObject group = new BasicDBObject(GROUP, new BasicDBObject(mapGroup));
                 pipeline.add(group);
             }
             //add project attribute to pipeline
             if (mapProject != null) {
-                DBObject project = new BasicDBObject("$project", new BasicDBObject(mapProject));
+                DBObject project = new BasicDBObject(PROJECT, new BasicDBObject(mapProject));
                 pipeline.add(project);
             }
             return this.collection.aggregate(pipeline);
@@ -336,7 +348,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             throw new MongoQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection));
+                return this.collection.update(this.query, new BasicDBObject(SET, this.projection));
             } else {
                 throw new MongoQueryException("Query format is invalid no collection found");
             }
@@ -348,7 +360,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             throw new MongoQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi);
+                return this.collection.update(this.query, new BasicDBObject(SET, this.projection), upsert, multi);
             } else {
                 throw new MongoQueryException("Query format is invalid no collection found");
             }
@@ -361,7 +373,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             throw new MongoQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi, aWriteConcern);
+                return this.collection.update(this.query, new BasicDBObject(SET, this.projection), upsert, multi, aWriteConcern);
             } else {
                 throw new MongoQueryException("Query format is invalid no collection found");
             }
@@ -374,7 +386,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             throw new MongoQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi, aWriteConcern, encoder);
+                return this.collection.update(this.query, new BasicDBObject(SET, this.projection), upsert, multi, aWriteConcern, encoder);
             } else {
                 throw new MongoQueryException("Query format is invalid no collection found");
             }
@@ -387,7 +399,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             throw new MongoQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection), upsert, multi, aWriteConcern, byPassDocumentValidation, encoder);
+                return this.collection.update(this.query, new BasicDBObject(SET, this.projection), upsert, multi, aWriteConcern, byPassDocumentValidation, encoder);
             } else {
                 throw new MongoQueryException("Query format is invalid no collection found");
             }
@@ -399,7 +411,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             throw new MongoQueryException("Parameter count not matched with query parameters");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.updateMulti(this.query, new BasicDBObject("$set", this.projection));
+                return this.collection.updateMulti(this.query, new BasicDBObject(SET, this.projection));
             } else {
                 throw new MongoQueryException("Query format is invalid no collection found");
             }
@@ -445,16 +457,16 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     public BulkWriteResult insertBulk() throws MongoQueryException {
         try {
             return this.bulkWrite.execute();
-        } catch (Exception e) {
-            throw new MongoQueryException("Query Exception:" + e.getLocalizedMessage());
+        } catch (MongoException e) {
+            throw new MongoQueryException("Query Exception:" + e.getLocalizedMessage(),e);
         }
     }
 
     public BulkWriteResult updateBulk() throws MongoQueryException {
         try {
             return this.bulkWrite.execute();
-        } catch (Exception e) {
-            throw new MongoQueryException("Query Exception:" + e.getLocalizedMessage());
+        } catch (MongoException e) {
+            throw new MongoQueryException("Query Exception:" + e.getLocalizedMessage(),e);
         }
     }
 
@@ -483,7 +495,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * check whether the provided arguments are equal to the parameters in json query
+     * Check whether the provided arguments are equal to the parameters in json query
      *
      * @param query type JSONObject
      * @return boolean status whether the argument correct or not
@@ -513,16 +525,16 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      */
     private boolean convertToDBObject(String query) {
         JSONObject queryObject = new JSONObject(query);
-        if (queryObject.has("collection")) {
-            String collection = queryObject.getString("collection");
+        if (queryObject.has(COLLECTION)) {
+            String collection = queryObject.getString(COLLECTION);
             this.collection = this.db.getCollection(collection);
-            queryObject.remove("collection");
+            queryObject.remove(COLLECTION);
             //check whether the query has distinct key word
             if (queryObject.has("distinct")) {
                 this.distinctKey = queryObject.getString("distinct");
             }
             //if query has $set attribute then query will be update query
-            if (query.contains("$set")) {
+            if (query.contains(SET)) {
                 getUpdateObject(queryObject);
             } else {
                 setQueryObject(queryObject, false);
@@ -534,7 +546,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * set passed values to query parameters
+     * Set passed values to query parameters
      *
      * @param object to execute
      * @param status boolean status
@@ -548,14 +560,14 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             Object val = null;
             try {
                 JSONObject value = object.getJSONObject(key);
-                if (key.equals("projection")) {
+                if (key.equals(PROJECTION)) {
                     hasProjection = true;
                 }
                 setQueryObject(value, hasProjection);
             } catch (Exception e) {
                 //if a case insensitive then check for $regex attribute
-                if (key.equals("$regex")) {
-                    key = "UM_USER_NAME";
+                if (key.equals(REGEX)) {
+                    key = USER_NAME;
                     this.isCaseSensitive = false;
                 }
                 //replace query parameter with respective value
@@ -565,9 +577,9 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             }
             if (val != null && !val.equals("%")) {
                 if (!this.isCaseSensitive) {
-                    if (key.equals("UM_USER_NAME")) {
-                        mapCaseQuery.put("$regex", val);
-                        mapCaseQuery.put("$options", "i");
+                    if (key.equals(USER_NAME)) {
+                        mapCaseQuery.put(REGEX, val);
+                        mapCaseQuery.put(OPTIONS, "i");
                     } else {
                         mapQuery.put(key, val);
                     }
@@ -575,14 +587,14 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                     mapQuery.put(key, val);
                 }
             }
-            if (hasProjection && !key.equals("projection")) {
+            if (hasProjection && !key.equals(PROJECTION)) {
                 mapProjection.put(key, object.get(key));
             }
         }
         if (this.isCaseSensitive) {
             this.query = new BasicDBObject(mapQuery);
         } else {
-            this.query = new BasicDBObject(mapQuery).append("UM_USER_NAME", mapCaseQuery);
+            this.query = new BasicDBObject(mapQuery).append(USER_NAME, mapCaseQuery);
         }
         if (!mapProjection.isEmpty()) {
             this.projection = new BasicDBObject(mapProjection);
@@ -590,7 +602,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * get the value setted updated object
+     * Get the value setted updated object
      *
      * @param object to update
      */
@@ -599,10 +611,10 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         while (keys.hasNext()) {
             String key = keys.next();
             Object val;
-            if (key.equals("projection")) {
+            if (key.equals(PROJECTION)) {
 
                 JSONObject setObject = object.getJSONObject(key);
-                setUpdateObject(setObject.getJSONObject("$set"));
+                setUpdateObject(setObject.getJSONObject(SET));
             } else {
                 if (parameterValue.containsKey(key)) {
                     val = parameterValue.get(key);
@@ -624,28 +636,28 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             String key = keys.next();
             JSONObject value = null;
             try {
-                if (!key.equals("collection")) {
+                if (!key.equals(COLLECTION)) {
                     value = stmt.getJSONObject(key);
                 }
             } catch (JSONException e) {
                 throw new JSONException(e.getMessage());
             }
-            if (key.equals("collection")) {
+            if (key.equals(COLLECTION)) {
                 this.collection = db.getCollection(stmt.get(key).toString());
-            } else if (key.equals("$lookup") || key.contains("$lookup_sub")) {
+            } else if (key.equals(LOOK_UP) || key.contains("$lookup_sub")) {
                 if (isMultipleLookUp()) {
                     mapLookUp = toMap(value);
                 } else {
                     mapLookUp = toMap(value);
                     multiMapLookup.add(mapLookUp);
                 }
-            } else if (key.equals("$project")) {
+            } else if (key.equals(PROJECT)) {
                 mapProject = toMap(value);
-            } else if (key.equals("$sort")) {
+            } else if (key.equals(SORT)) {
                 mapSort = toMap(value);
-            } else if (key.equals("$group")) {
+            } else if (key.equals(GROUP)) {
                 mapGroup = toMap(value);
-            } else if (key.equals("$unwind") || key.equals("$unwind_sub")) {
+            } else if (key.equals(UNWIND) || key.equals("$unwind_sub")) {
                 if (isMultipleLookUp()) {
                     mapUnwind = toMap(value);
                 } else {
@@ -659,7 +671,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * set object parameter with passed values
+     * Set object parameter with passed values
      *
      * @param stmt to set values
      */
@@ -677,7 +689,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                         String[] elements = JSONObject.getNames(match);
                         for (String element : elements) {
                             if (!val.equals("%")) {
-                                if (element.equals("$regex")) {
+                                if (element.equals(REGEX)) {
                                     mapMatchCaseInSensitive.put(element, val);
                                 } else {
                                     mapMatchCaseInSensitive.put(element, "i");
