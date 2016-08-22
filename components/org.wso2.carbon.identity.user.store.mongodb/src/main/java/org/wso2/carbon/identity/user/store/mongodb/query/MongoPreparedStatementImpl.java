@@ -217,6 +217,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.insert(this.query);
             } else {
+
                 throw new MongoQueryException("Query format is invalid no collection found");
             }
         }
