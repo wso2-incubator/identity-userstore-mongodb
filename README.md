@@ -90,7 +90,7 @@ The above configurations are good enough for you to use the MongoDB as a seconda
   </UserStoreManager>
 ```
 
-10. The format of the `ConnectionURL` is given below. In case if the port is not specified, then `27017` will be used as the default port.
+10. The format of the `ConnectionURL` is given below. In case if the port is not specified, then `27017` will be used, which is the default port for MongoDB.
 ```
    mongodb://host[:port]/database[?options]
 ```
