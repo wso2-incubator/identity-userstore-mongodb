@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pranavan15/identity-userstore-mongodb.svg?branch=master)](https://travis-ci.org/pranavan15/identity-userstore-mongodb)
+
 # MongoDB User Store Extension for WSO2 IS
 
 ## Introduction
@@ -55,35 +57,37 @@ The above configurations are good enough for you to use the MongoDB as a seconda
 
 ##### user-mgt.xml
 ```xml
-    <UserStoreManager class="org.wso2.carbon.mongodb.user.store.mgt.MongoDBUserStoreManager">
-    <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
-    <Property name="ReadGroups">true</Property>
-    <Property name="ReadOnly">false</Property>
-    <Property name="IsEmailUserName">false</Property>
-    <Property name="DomainCalculation">default</Property>
-    <Property name="WriteGroups">true</Property>
-    <Property name="UserNameUniqueAcrossTenants">false</Property>
-    <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
-    <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
-    <Property name="PasswordJavaRegExViolationErrorMsg">Password pattern policy violated.</Property>
-    <Property name="UsernameJavaRegEx">^[\S]{5,30}$</Property>
-    <Property name="UsernameJavaScriptRegEx">^[\S]{5,30}$</Property>
-    <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated.</Property>
-    <Property name="RolenameJavaRegEx">^[\S]{5,30}$</Property>
-    <Property name="RolenameJavaScriptRegEx">^[\S]{5,30}$</Property>
-    <Property name="validationInterval"/>
-    <Property name="CaseInsensitiveUsername">true</Property>
-    <Property name="SCIMEnabled">false</Property>
-    <Property name="IsBulkImportSupported">false</Property>
-    <Property name="PasswordDigest">SHA-256</Property>
-    <Property name="MultiAttributeSeparator">,</Property>
-    <Property name="StoreSaltedPassword">true</Property>
-    <Property name="MaximumUserListLength">100</Property>
-    <Property name="MaximumRoleListLength">100</Property>
-    <Property name="EnableUserRoleCache">true</Property>
-    <Property name="UserNameUniqueAcrossTenants">false</Property>            
-</UserStoreManager>
-
+<UserStoreManager class="org.wso2.carbon.mongodb.user.store.mgt.MongoDBUserStoreManager">
+      <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
+      <Property name="ConnectionURL">mongodb://localhost/wso2_carbon_db</Property>
+      <Property name="ConnectionName">USERNAME</Property>
+      <Property name="ConnectionPassword">PASSWORD</Property>
+      <Property name="ReadGroups">true</Property>
+      <Property name="ReadOnly">false</Property>
+      <Property name="IsEmailUserName">false</Property>
+      <Property name="DomainCalculation">default</Property>
+      <Property name="WriteGroups">true</Property>
+      <Property name="UserNameUniqueAcrossTenants">false</Property>
+      <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+      <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
+      <Property name="PasswordJavaRegExViolationErrorMsg">Password pattern policy violated.</Property>
+      <Property name="UsernameJavaRegEx">^[\S]{5,30}$</Property>
+      <Property name="UsernameJavaScriptRegEx">^[\S]{5,30}$</Property>
+      <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated.</Property>
+      <Property name="RolenameJavaRegEx">^[\S]{5,30}$</Property>
+      <Property name="RolenameJavaScriptRegEx">^[\S]{5,30}$</Property>
+      <Property name="validationInterval"/>
+      <Property name="CaseInsensitiveUsername">true</Property>
+      <Property name="SCIMEnabled">false</Property>
+      <Property name="IsBulkImportSupported">false</Property>
+      <Property name="PasswordDigest">SHA-256</Property>
+      <Property name="MultiAttributeSeparator">,</Property>
+      <Property name="StoreSaltedPassword">true</Property>
+      <Property name="MaximumUserListLength">100</Property>
+      <Property name="MaximumRoleListLength">100</Property>
+      <Property name="EnableUserRoleCache">true</Property>
+      <Property name="UserNameUniqueAcrossTenants">false</Property>            
+  </UserStoreManager>
 ```
 
 10. Comment the existing primary user store xml configurations in `user-mgt.xml` and save the file.
