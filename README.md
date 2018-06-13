@@ -53,11 +53,11 @@ Now you have successfully added the mongoDB user store extension to the product-
 
 The above configurations are good enough for you to use the MongoDB as a secondary user store manager. However, in order to use the MongoDB as the primary user store of product-IS you require some additional configurations as follow. 
 
-9. After following steps 1-7, prior to start the IS server, add the following in the `user-mgt.xml` file of product-IS. You can find this file inside `/repository/conf` folder. 
+9. After following steps 1-7, prior to start the IS server, add the following in the `user-mgt.xml` file of product-IS. You can find this file inside `/repository/conf` folder. Make sure to replace the `ConnectionName` and `ConnectionPassword` with your credentials for the specified MongoDB database. 
 
 ##### user-mgt.xml
 ```xml
-<UserStoreManager class="org.wso2.carbon.mongodb.user.store.mgt.MongoDBUserStoreManager">
+  <UserStoreManager class="org.wso2.carbon.mongodb.user.store.mgt.MongoDBUserStoreManager">
       <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
       <Property name="ConnectionURL">mongodb://localhost/wso2_carbon_db</Property>
       <Property name="ConnectionName">USERNAME</Property>
@@ -90,9 +90,14 @@ The above configurations are good enough for you to use the MongoDB as a seconda
   </UserStoreManager>
 ```
 
-10. Comment the existing primary user store xml configurations in `user-mgt.xml` and save the file.
+10. The format of the `ConnectionURL` is given below. In case if the port is not specified, then `27017` will be used as the default port.
+```
+   mongodb://host[:port]/database[?options]
+```
 
-11. Now, open a terminal, navigate to the `bin` folder of product-IS and start the IS server by executing the following command
+11. Comment the existing primary user store xml configurations in `user-mgt.xml` and save the file.
+
+12. Now, open a terminal, navigate to the `bin` folder of product-IS and start the IS server by executing the following command
 ```bash
    ./wso2server.sh
 ```
