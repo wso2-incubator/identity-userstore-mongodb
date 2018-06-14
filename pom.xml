@@ -1,11 +1,13 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
 
+    <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
     <artifactId>mongodb.user.store.mgt</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
+    <description>MongoDB user store extension for WSO2 product-IS</description>
+    <url>http://wso2.org</url>
 
     <repositories>
         <repository>
@@ -20,63 +22,66 @@
         </repository>
     </repositories>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>4.4.26</version>
+            <version>${carbon.kernel.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.api</artifactId>
-            <version>4.4.26</version>
+            <version>${carbon.kernel.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20160212</version>
+            <version>${json.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
+            <version>${commons.logging.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
             <scope>test</scope>
+            <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
-            <version>1.9.2</version>
+            <version>${jasypt.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>3.7.0</version>
+            <version>${mongo.java.driver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+            <version>${apache.felix.scr.ds.annotations.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0</version>
+                <version>${maven.compiler.version}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
-                <version>1.7.2</version>
+                <version>${maven.scr.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>generate-scr-scrdescriptor</id>
@@ -89,7 +94,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>1.4.0</version>
+                <version>${maven.bundle.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -114,4 +119,33 @@
             </plugin>
         </plugins>
     </build>
+
+
+    <properties>
+        <!-- File encoding of build -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Carbon kernel version -->
+        <carbon.kernel.version>4.4.27</carbon.kernel.version>
+        <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
+        <!-- Json version -->
+        <json.version>20180130</json.version>
+        <!-- Commons logging version -->
+        <commons.logging.version>1.2</commons.logging.version>
+        <commons.logging.osgi.version.range>[1.1,2.0)</commons.logging.osgi.version.range>
+        <!-- JUnit test version -->
+        <junit.version>4.12</junit.version>
+        <!-- Jasypt version -->
+        <jasypt.version>1.9.2</jasypt.version>
+        <!-- Mongo Java driver version -->
+        <mongo.java.driver.version>3.7.1</mongo.java.driver.version>
+        <!-- Maven scr plugin version -->
+        <maven.scr.plugin.version>1.26.0</maven.scr.plugin.version>
+        <apache.felix.scr.ds.annotations.version>1.2.8</apache.felix.scr.ds.annotations.version>
+        <!-- Maven compiler version -->
+        <maven.compiler.version>3.7.0</maven.compiler.version>
+        <!-- Maven bundle version -->
+        <maven.bundle.version>3.5.0</maven.bundle.version>
+    </properties>
+
 </project>
