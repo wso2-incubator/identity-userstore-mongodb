@@ -44,7 +44,11 @@ public class MongoDBUserStoreMgtDSComponent {
     private static final Log log = LogFactory.getLog(MongoDBUserStoreMgtDSComponent.class);
     private static RealmService realmService;
 
-    // To activate the MongoDB OSGI component
+    /**
+     * To activate the MongoDB OSGI component
+     *
+     * @param context ComponentContext
+     */
     protected void activate(ComponentContext context) {
 
         try {
@@ -67,7 +71,11 @@ public class MongoDBUserStoreMgtDSComponent {
         }
     }
 
-    // Bind method
+    /**
+     * Bind method
+     *
+     * @param rlmService RealmService
+     */
     protected void setRealmService(RealmService rlmService) {
         if (log.isDebugEnabled()) {
             log.debug("Set the realmService");
@@ -75,7 +83,11 @@ public class MongoDBUserStoreMgtDSComponent {
         MongoDBUserStoreMgtDSComponent.realmService = rlmService;
     }
 
-    // Unbind method
+    /**
+     * Unbind method
+     *
+     * @param rlmService RealmService
+     */
     protected void unsetRealmService(RealmService rlmService) {
         if (log.isDebugEnabled()) {
             log.debug("Unset the realmService");

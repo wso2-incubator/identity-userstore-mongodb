@@ -46,7 +46,6 @@ public class MongoDBUserStoreConstants {
     private static final String CONNECTION_URL_PATTERN = "mongodb://host[:port]/database[?options]";
 
     static {
-
         // Set mandatory properties
         setMandatoryProperty(MongoDBRealmConstants.URL, "Connection URL", CONNECTION_URL_PATTERN,
                 "URL of the user store database", false);
@@ -263,13 +262,27 @@ public class MongoDBUserStoreConstants {
                 "'foreignField' : 'UM_ID','$project' : {'name' : '$_id','UM_USER_NAME',1}}]'}");
     }
 
-    // Private method to set optional properties
+    /**
+     * Private method to set optional properties
+     *
+     * @param name        Property name
+     * @param value       Property value
+     * @param description Property description
+     */
     private static void setProperty(String name, String value, String description) {
         Property property = new Property(name, value, description, null);
         MONGODB_UM_OPTIONAL_PROPERTIES.add(property);
     }
 
-    // Private method to set mandatory properties
+    /**
+     * Private method to set mandatory properties
+     *
+     * @param name        Property name
+     * @param displayName Property display name
+     * @param value       Property value
+     * @param description Property description
+     * @param encrypt     Encrypt status
+     */
     private static void setMandatoryProperty(String name, String displayName, String value, String description,
                                              boolean encrypt) {
         String propertyDescription = displayName + "#" + description;
@@ -280,7 +293,12 @@ public class MongoDBUserStoreConstants {
         MONGODB_UM_MANDATORY_PROPERTIES.add(property);
     }
 
-    // Private method to set advanced properties
+    /**
+     * Private method to set advanced properties
+     *
+     * @param name  Property name
+     * @param value Property value
+     */
     private static void setAdvancedProperty(String name, String value) {
         Property property = new Property(name, value, "", null);
         MONGODB_UM_ADVANCED_PROPERTIES.add(property);

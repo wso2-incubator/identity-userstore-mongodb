@@ -47,6 +47,7 @@ import com.mongodb.WriteResult;
 import com.mongodb.DBCursor;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
+import com.mongodb.MongoException;
 
 import org.apache.commons.logging.Log;
 import org.wso2.carbon.mongodb.query.MongoPreparedStatement;
@@ -294,8 +295,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     map.put(key, value);
                 }
             }
-        } catch (UserStoreException e) {
-            throw new UserStoreException("Failed to get the user property values", e);
         } finally {
             if (prepStmt != null) {
                 prepStmt.close();
@@ -375,9 +374,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             return isExisting;
         } catch (MongoDBQueryException e) {
-            throw new UserStoreException("MongoDBQueryException occurred while checking the existence of value", e);
-        } catch (UserStoreException e) {
-            throw new UserStoreException("Error while loading the data source to check the existence of value", e);
+            throw new UserStoreException("Error while checking the existence of value", e);
         }
     }
 
@@ -456,8 +453,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (MongoDBQueryException e) {
             throw new UserStoreException("MongoDBQueryException occurred while getting the user list", e);
-        } catch (UserStoreException e) {
-            throw new UserStoreException("Error while loading the data source to get the user list", e);
         } finally {
             if (prepStmt != null) {
                 prepStmt.close();
@@ -533,8 +528,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (MongoDBQueryException e) {
             throw new UserStoreException("MongoDBQueryException occurred while authenticating", e);
-        } catch (UserStoreException e) {
-            throw new UserStoreException("Error while authenticating", e);
         } finally {
             if (prepStmt != null) {
                 prepStmt.close();
@@ -785,8 +778,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (MongoDBQueryException e) {
             throw new UserStoreException("MongoDBQueryException occurred. Cannot delete string values", e);
-        } catch (UserStoreException e) {
-            throw new UserStoreException("Error while loading the data source. Cannot delete string values", e);
         } finally {
             if (localConnection && prepStmt != null) {
                 prepStmt.close();
@@ -1351,8 +1342,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             return roles.toArray(new String[roles.size()]);
         } catch (MongoDBQueryException e) {
             throw new UserStoreException("MongoDBQueryException occurred. Cannot get external role list of user", e);
-        } catch (UserStoreException e) {
-            throw new UserStoreException("Error while getting external role list of user", e);
         }
     }
 
@@ -1739,8 +1728,19 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         MongoPreparedStatement prepStmt;
         //noinspection deprecation
         AggregationOutput cursor;
-        if (maxItemLimit <= 0) {
+        if (maxItemLimit == 0) {
             return new String[0];
+        }
+        int givenMax;
+        try {
+            givenMax = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST)
+            );
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+        if (maxItemLimit < 0 || maxItemLimit > givenMax) {
+            maxItemLimit = givenMax;
         }
         try {
             if (filter != null && filter.trim().length() != 0) {
@@ -1750,12 +1750,13 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             } else {
                 filter = "%";
             }
+
             List<String> lst = new LinkedList<>();
             dbConnection = loadUserStoreSpecificDataSource();
-
             if (dbConnection == null) {
                 throw new UserStoreException("Data source is null. Cannot list users");
             }
+
             if (isCaseSensitiveUsername()) {
                 mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USER_FILTER);
             } else {
@@ -1767,7 +1768,17 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 prepStmt.setInt("UM_TENANT_ID", tenantId);
             }
-            cursor = prepStmt.aggregate();
+            try {
+                cursor = prepStmt.aggregate();
+            } catch (MongoException e) {
+                String errorMessage =
+                        "Error while fetching users according to filter : " + filter + " & max Item limit " +
+                                ": " + maxItemLimit;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
             if (cursor != null) {
                 for (DBObject object : cursor.results()) {
                     String name = object.get("UM_USER_NAME").toString();
@@ -1940,7 +1951,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * get profile names of user
+     * Get profile names of user
      *
      * @param userName to  search
      * @return String[] of profile names

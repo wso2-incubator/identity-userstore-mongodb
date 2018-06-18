@@ -51,9 +51,21 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
 
     private static final String MONGO_REGEX_FIELD = "$regex";
     private static final String MONGO_OPTIONS_FIELD = "$options";
+    private static final String MONGO_LOOKUP_FIELD = "$lookup";
     private static final String MONGO_CASE_INSENSITIVE_OPTION = "i";
     private static final String MONGO_PROJECTION_FIELD = "projection";
+    private static final String MONGO_COLLECTION_FIELD = "collection";
+    private static final String MONGO_DISTINCT_FIELD = "distinct";
     private static final String MONGO_SET_FIELD = "$set";
+    private static final String MONGO_PROJECT_FIELD = "$project";
+    private static final String MONGO_SORT_FIELD = "$sort";
+    private static final String MONGO_GROUP_FIELD = "$group";
+    private static final String MONGO_UNWIND_FIELD = "$unwind";
+    private static final String MONGO_LOOKUP_SUB = "$lookup_sub";
+    private static final String MONGO_UNWIND_SUB = "$unwind_sub";
+    private static final String MONGO_DEPENDENCY_FIELD = "dependency";
+    private static final String MONGO_MATCH_FIELD = "$match";
+    private static final String UM_USER_NAME = "UM_USER_NAME";
 
     private DB db = null;
     private DBCollection collection = null;
@@ -113,7 +125,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         if (mapCaseQuery == null) {
             this.mapCaseQuery = new HashMap<>();
         }
-        if (query.contains("$lookup")) {
+        if (query.contains(MONGO_LOOKUP_FIELD)) {
             setMultiLookUp(true);
         }
         if (log.isDebugEnabled()) {
@@ -395,13 +407,13 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      */
     private boolean convertToDBObject(String query) {
         JSONObject queryObject = new JSONObject(query);
-        if (queryObject.has("collection")) {
-            String collection = queryObject.getString("collection");
+        if (queryObject.has(MONGO_COLLECTION_FIELD)) {
+            String collection = queryObject.getString(MONGO_COLLECTION_FIELD);
             this.collection = this.db.getCollection(collection);
-            queryObject.remove("collection");
+            queryObject.remove(MONGO_COLLECTION_FIELD);
             // Check whether the query has distinct key word
-            if (queryObject.has("distinct")) {
-                this.distinctKey = queryObject.getString("distinct");
+            if (queryObject.has(MONGO_DISTINCT_FIELD)) {
+                this.distinctKey = queryObject.getString(MONGO_DISTINCT_FIELD);
             }
             // If query has $set attribute then query will be update query
             if (query.contains(MONGO_SET_FIELD)) {
@@ -437,7 +449,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             } catch (Exception e) {
                 // If a case insensitive then check for $regex attribute
                 if (key.equals(MONGO_REGEX_FIELD)) {
-                    key = "UM_USER_NAME";
+                    key = UM_USER_NAME;
                     this.isCaseSensitive = false;
                 }
                 // Replace query parameter with respective value
@@ -447,7 +459,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             }
             if (val != null && !val.equals("%")) {
                 if (!this.isCaseSensitive) {
-                    if (key.equals("UM_USER_NAME")) {
+                    if (key.equals(UM_USER_NAME)) {
                         mapCaseQuery.put(MONGO_REGEX_FIELD, val);
                         mapCaseQuery.put(MONGO_OPTIONS_FIELD, MONGO_CASE_INSENSITIVE_OPTION);
                     } else {
@@ -464,7 +476,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         if (this.isCaseSensitive) {
             this.query = new BasicDBObject(mapQuery);
         } else {
-            this.query = new BasicDBObject(mapQuery).append("UM_USER_NAME", mapCaseQuery);
+            this.query = new BasicDBObject(mapQuery).append(UM_USER_NAME, mapCaseQuery);
         }
         if (!mapProjection.isEmpty()) {
             this.projection = new BasicDBObject(mapProjection);
@@ -504,24 +516,24 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         Iterator<String> keys = stmt.keys();
         while (keys.hasNext()) {
             String key = keys.next();
-            if (key.equals("collection")) {
+            if (key.equals(MONGO_COLLECTION_FIELD)) {
                 this.collection = db.getCollection(stmt.get(key).toString());
             } else {
                 JSONObject value = stmt.getJSONObject(key);
-                if (key.equals("$lookup") || key.contains("$lookup_sub")) {
+                if (key.equals(MONGO_LOOKUP_FIELD) || key.contains(MONGO_LOOKUP_SUB)) {
                     if (isMultipleLookUp()) {
                         mapLookUp = toMap(value);
                     } else {
                         mapLookUp = toMap(value);
                         multiMapLookup.add(mapLookUp);
                     }
-                } else if (key.equals("$project")) {
+                } else if (key.equals(MONGO_PROJECT_FIELD)) {
                     mapProject = toMap(value);
-                } else if (key.equals("$sort")) {
+                } else if (key.equals(MONGO_SORT_FIELD)) {
                     mapSort = toMap(value);
-                } else if (key.equals("$group")) {
+                } else if (key.equals(MONGO_GROUP_FIELD)) {
                     mapGroup = toMap(value);
-                } else if (key.equals("$unwind") || key.equals("$unwind_sub")) {
+                } else if (key.equals(MONGO_UNWIND_FIELD) || key.equals(MONGO_UNWIND_SUB)) {
                     if (isMultipleLookUp()) {
                         mapUnwind = toMap(value);
                     } else {
@@ -607,21 +619,22 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      */
     private void addLookUpAttribute(List<DBObject> pipeline) {
         if (isMultipleLookUp()) {
-            DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(mapLookUp));
+            DBObject lookup = new BasicDBObject(MONGO_LOOKUP_FIELD, new BasicDBObject(mapLookUp));
             pipeline.add(lookup);
         } else {
             int track = 0;
             // Add the json query object to aggregation pipeline in order manner
             while (track < multiMapLookup.size()) {
                 for (Map<String, Object> map : multiMapLookup) {
-                    if (map.containsKey("dependency")) {
-                        map.remove("dependency");
-                        DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
+                    if (map.containsKey(MONGO_DEPENDENCY_FIELD)) {
+                        map.remove(MONGO_DEPENDENCY_FIELD);
+                        DBObject lookup = new BasicDBObject(MONGO_LOOKUP_FIELD, new BasicDBObject(map));
                         if (!pipeline.contains(lookup)) {
                             for (Map<String, Object> unwindSearch : multiMapUnwind) {
                                 String key = "$" + map.get("as");
                                 if (unwindSearch.containsValue(key) && !pipeline.isEmpty()) {
-                                    DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(unwindSearch));
+                                    DBObject unwind = new BasicDBObject(MONGO_UNWIND_FIELD,
+                                            new BasicDBObject(unwindSearch));
                                     pipeline.add(unwind);
                                     pipeline.add(lookup);
                                     track++;
@@ -629,13 +642,14 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                             }
                         }
                     } else {
-                        DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
+                        DBObject lookup = new BasicDBObject(MONGO_LOOKUP_FIELD, new BasicDBObject(map));
                         if (!pipeline.contains(lookup)) {
                             pipeline.add(lookup);
                             for (Map<String, Object> unwindSearch : multiMapUnwind) {
                                 String key = "$" + map.get("as");
                                 if (unwindSearch.containsValue(key)) {
-                                    DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(unwindSearch));
+                                    DBObject unwind = new BasicDBObject(MONGO_UNWIND_FIELD,
+                                            new BasicDBObject(unwindSearch));
                                     pipeline.add(unwind);
                                     track++;
                                 }
@@ -654,7 +668,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      */
     private void addUnwindAttribute(List<DBObject> pipeline) {
         if (isMultipleLookUp()) {
-            DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(mapUnwind));
+            DBObject unwind = new BasicDBObject(MONGO_UNWIND_FIELD, new BasicDBObject(mapUnwind));
             pipeline.add(unwind);
         }
     }
@@ -667,10 +681,10 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     private void addMatchAttribute(List<DBObject> pipeline) {
         DBObject match;
         if (this.isCaseSensitive) {
-            match = new BasicDBObject("$match", new BasicDBObject(mapMatch));
+            match = new BasicDBObject(MONGO_MATCH_FIELD, new BasicDBObject(mapMatch));
         } else {
-            match = new BasicDBObject("$match", new BasicDBObject(mapMatch).
-                    append("UM_USER_NAME", new BasicDBObject(mapMatchCaseInSensitive)));
+            match = new BasicDBObject(MONGO_MATCH_FIELD, new BasicDBObject(mapMatch).
+                    append(UM_USER_NAME, new BasicDBObject(mapMatchCaseInSensitive)));
         }
         pipeline.add(match);
     }
@@ -681,7 +695,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addSortAttribute(List<DBObject> pipeline) {
-        DBObject sort = new BasicDBObject("$sort", new BasicDBObject(mapSort));
+        DBObject sort = new BasicDBObject(MONGO_SORT_FIELD, new BasicDBObject(mapSort));
         pipeline.add(sort);
     }
 
@@ -691,7 +705,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addGroupAttribute(List<DBObject> pipeline) {
-        DBObject group = new BasicDBObject("$group", new BasicDBObject(mapGroup));
+        DBObject group = new BasicDBObject(MONGO_GROUP_FIELD, new BasicDBObject(mapGroup));
         pipeline.add(group);
     }
 
@@ -701,7 +715,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addProjectAttribute(List<DBObject> pipeline) {
-        DBObject project = new BasicDBObject("$project", new BasicDBObject(mapProject));
+        DBObject project = new BasicDBObject(MONGO_PROJECT_FIELD, new BasicDBObject(mapProject));
         pipeline.add(project);
     }
 }

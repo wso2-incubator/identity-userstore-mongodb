@@ -120,7 +120,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.mongodb.user.store.mgt.internal
+                            org.wso2.carbon.mongodb.user.store.mgt.internal;
+                            version="${org.wso2.carbon.mongodb.user.store.mgt.version.range}"
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.mongodb.user.store.mgt.internal,
@@ -163,6 +164,9 @@
         <maven.compiler.version>3.7.0</maven.compiler.version>
         <!-- Maven bundle version -->
         <maven.bundle.version>3.5.0</maven.bundle.version>
+        <!-- Project version range -->
+        <org.wso2.carbon.mongodb.user.store.mgt.version.range>[1.0.0-SNAPSHOT, 2.0.0-SNAPSHOT)
+        </org.wso2.carbon.mongodb.user.store.mgt.version.range>
     </properties>
 
 </project>
