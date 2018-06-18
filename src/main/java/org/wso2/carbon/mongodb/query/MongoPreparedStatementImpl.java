@@ -33,7 +33,6 @@ import com.mongodb.WriteResult;
 import com.mongodb.DBCursor;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
-import com.mongodb.MongoException;
 import com.mongodb.BulkWriteRequestBuilder;
 import com.mongodb.BulkWriteResult;
 import com.mongodb.BulkUpdateRequestBuilder;
@@ -41,9 +40,7 @@ import com.mongodb.BulkUpdateRequestBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.wso2.carbon.user.api.UserStoreException;
 
 /**
  * MongoDB Prepared Statement interface implementation class
@@ -51,6 +48,12 @@ import org.wso2.carbon.user.api.UserStoreException;
 public class MongoPreparedStatementImpl implements MongoPreparedStatement {
 
     private static final Log log = LogFactory.getLog(MongoPreparedStatementImpl.class);
+
+    private static final String MONGO_REGEX_FIELD = "$regex";
+    private static final String MONGO_OPTIONS_FIELD = "$options";
+    private static final String MONGO_CASE_INSENSITIVE_OPTION = "i";
+    private static final String MONGO_PROJECTION_FIELD = "projection";
+    private static final String MONGO_SET_FIELD = "$set";
 
     private DB db = null;
     private DBCollection collection = null;
@@ -69,7 +72,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     private Map<String, Object> mapGroup = null;
     private Map<String, Object> mapUnwind = null;
     private BulkWriteOperation bulkWrite = null;
-    private boolean multipleLookUp = false;
+    private boolean multipleLookUpStatus = false;
     private ArrayList<Map<String, Object>> multiMapLookup;
     private ArrayList<Map<String, Object>> multiMapUnwind;
     private String distinctKey;
@@ -84,12 +87,10 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @param query to execute
      */
     public MongoPreparedStatementImpl(DB db, String query) {
-
         if (this.db == null) {
             this.db = db;
         }
         if (mapQuery == null && mapProjection == null) {
-
             mapQuery = new HashMap<>();
             mapProjection = new HashMap<>();
         }
@@ -105,12 +106,18 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         this.parameterCount = 0;
         this.distinctKey = "";
         this.isCaseSensitive = true;
-        if (mapMatchCaseInSensitive == null) {
 
+        if (mapMatchCaseInSensitive == null) {
             this.mapMatchCaseInSensitive = new HashMap<>();
         }
         if (mapCaseQuery == null) {
             this.mapCaseQuery = new HashMap<>();
+        }
+        if (query.contains("$lookup")) {
+            setMultiLookUp(true);
+        }
+        if (log.isDebugEnabled()) {
+            log.info("Is multiple lookup enabled for the prepared statement: " + isMultipleLookUp());
         }
     }
 
@@ -120,7 +127,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @param object to convert
      * @return Map object
      */
-    private static Map<String, Object> toMap(JSONObject object) throws JSONException {
+    private static Map<String, Object> toMap(JSONObject object) {
         Map<String, Object> map = new HashMap<>();
 
         Iterator<String> keysItr = object.keys();
@@ -144,7 +151,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @param array to convert to List
      * @return List object
      */
-    private static List<Object> toList(JSONArray array) throws JSONException {
+    private static List<Object> toList(JSONArray array) {
         List<Object> list = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             Object value = array.get(i);
@@ -202,23 +209,26 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
 
     public WriteResult insert() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoDBQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count mismatch");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.insert(this.query);
             } else {
-                throw new MongoDBQueryException("Query format is invalid no collection found");
+                if (log.isDebugEnabled()) {
+                    log.debug("Using query: " + defaultQuery);
+                }
+                throw new MongoDBQueryException("Invalid query format - no collection found");
             }
         }
     }
 
-    public void multiLookUp(boolean status) {
-        multipleLookUp = status;
+    public void setMultiLookUp(boolean status) {
+        multipleLookUpStatus = status;
     }
 
     public DBCursor find() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoDBQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count mismatch");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 if (this.projection == null && this.query == null) {
@@ -229,162 +239,98 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                     return this.collection.find(this.query, this.projection);
                 }
             } else {
-                throw new MongoDBQueryException("Query format is invalid no collection found");
+                if (log.isDebugEnabled()) {
+                    log.debug("Using query: " + defaultQuery);
+                }
+                throw new MongoDBQueryException("Invalid query format - no collection found");
             }
         }
     }
 
     public List distinct() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoDBQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count mismatch");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.distinct(this.distinctKey, this.query);
             } else {
-                throw new MongoDBQueryException("Query format is invalid no collection found");
+                if (log.isDebugEnabled()) {
+                    log.debug("Using query: " + defaultQuery);
+                }
+                throw new MongoDBQueryException("Invalid query format - no collection found");
             }
         }
     }
 
     @SuppressWarnings("deprecation")
-    public AggregationOutput aggregate() throws UserStoreException {
+    public AggregationOutput aggregate() {
         JSONObject defaultObject = new JSONObject(defaultQuery);
-        try {
-            getAggregationObjects(defaultObject);
-            List<DBObject> pipeline = new ArrayList<>();
-            // Add lookup attribute to pipeline
-            if (mapLookUp != null) {
-                if (isMultipleLookUp()) {
-                    DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(mapLookUp));
-                    pipeline.add(lookup);
-                } else {
-                    int track = 0;
-                    // Add the json query object to aggregation pipeline in order manner
-                    while (track < multiMapLookup.size()) {
-                        for (Map<String, Object> map : multiMapLookup) {
-                            if (map.containsKey("dependency")) {
-                                map.remove("dependency");
-                                DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
-                                if (!pipeline.contains(lookup)) {
-                                    for (Map<String, Object> unwindSearch : multiMapUnwind) {
-                                        String key = "$" + map.get("as");
-                                        if (unwindSearch.containsValue(key) && !pipeline.isEmpty()) {
-                                            DBObject unwind = new BasicDBObject("$unwind",
-                                                    new BasicDBObject(unwindSearch));
-                                            pipeline.add(unwind);
-                                            pipeline.add(lookup);
-                                            track++;
-                                        }
-                                    }
-                                }
-                            } else {
-                                DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
-                                if (!pipeline.contains(lookup)) {
-                                    pipeline.add(lookup);
-                                    for (Map<String, Object> unwindSearch : multiMapUnwind) {
+        getAggregationObjects(defaultObject);
+        List<DBObject> pipeline = new ArrayList<>();
 
-                                        String key = "$" + map.get("as");
-                                        if (unwindSearch.containsValue(key)) {
-
-                                            DBObject unwind = new BasicDBObject("$unwind",
-                                                    new BasicDBObject(unwindSearch));
-                                            pipeline.add(unwind);
-                                            track++;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Add unwind attribute to pipeline
-            if (mapUnwind != null) {
-                if (isMultipleLookUp()) {
-                    DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(mapUnwind));
-                    pipeline.add(unwind);
-                }
-            }
-            // Add match attribute to pipeline
-            if (mapMatch != null) {
-                DBObject match;
-                if (this.isCaseSensitive) {
-                    match = new BasicDBObject("$match", new BasicDBObject(mapMatch));
-                } else {
-                    match = new BasicDBObject("$match", new BasicDBObject(mapMatch).append("UM_USER_NAME",
-                            new BasicDBObject(mapMatchCaseInSensitive)));
-                }
-                pipeline.add(match);
-            }
-            // Add sort attribute to pipeline
-            if (mapSort != null) {
-                DBObject sort = new BasicDBObject("$sort", new BasicDBObject(mapSort));
-                pipeline.add(sort);
-            }
-            // Add group attribute to pipeline
-            if (mapGroup != null) {
-                DBObject group = new BasicDBObject("$group", new BasicDBObject(mapGroup));
-                pipeline.add(group);
-            }
-            // Add project attribute to pipeline
-            if (mapProject != null) {
-                DBObject project = new BasicDBObject("$project", new BasicDBObject(mapProject));
-                pipeline.add(project);
-            }
-            return this.collection.aggregate(pipeline);
-
-        } catch (MongoException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("MongoException: " + e.getMessage());
-            }
-            throw new UserStoreException(e.getMessage(), e);
-        } catch (JSONException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("JSONException: " + e.getMessage());
-            }
-            throw new UserStoreException(e.getMessage(), e);
+        // Add lookup attribute to pipeline
+        if (mapLookUp != null) {
+            addLookUpAttribute(pipeline);
         }
+        // Add unwind attribute to pipeline
+        if (mapUnwind != null) {
+            addUnwindAttribute(pipeline);
+        }
+        // Add match attribute to pipeline
+        if (mapMatch != null) {
+            addMatchAttribute(pipeline);
+        }
+        // Add sort attribute to pipeline
+        if (mapSort != null) {
+            addSortAttribute(pipeline);
+        }
+        // Add group attribute to pipeline
+        if (mapGroup != null) {
+            addGroupAttribute(pipeline);
+        }
+        // Add project attribute to pipeline
+        if (mapProject != null) {
+            addProjectAttribute(pipeline);
+        }
+        return this.collection.aggregate(pipeline);
     }
 
     public WriteResult update() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoDBQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count mismatch");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject("$set", this.projection));
+                return this.collection.update(this.query, new BasicDBObject(MONGO_SET_FIELD, this.projection));
             } else {
-                throw new MongoDBQueryException("Query format is invalid no collection found");
+                if (log.isDebugEnabled()) {
+                    log.debug("Using query: " + defaultQuery);
+                }
+                throw new MongoDBQueryException("Invalid query format - no collection found");
             }
         }
     }
 
     public WriteResult remove() throws MongoDBQueryException {
         if (!matchArguments(this.queryJson)) {
-            throw new MongoDBQueryException("Parameter count not matched with query parameters");
+            throw new MongoDBQueryException("Parameter count mismatch");
         } else {
             if (convertToDBObject(defaultQuery)) {
                 return this.collection.remove(this.query);
             } else {
-                throw new MongoDBQueryException("Query format is invalid no collection found");
+                if (log.isDebugEnabled()) {
+                    log.debug("Using query: " + defaultQuery);
+                }
+                throw new MongoDBQueryException("Invalid query format - no collection found");
             }
         }
     }
 
-    public BulkWriteResult insertBulk() throws MongoDBQueryException {
-        try {
-            return this.bulkWrite.execute();
-        } catch (Exception e) {
-            throw new MongoDBQueryException("Query Exception: " + e.getLocalizedMessage());
-        }
+    public BulkWriteResult insertBulk() {
+        return this.bulkWrite.execute();
     }
 
-    public BulkWriteResult updateBulk() throws MongoDBQueryException {
-        try {
-            return this.bulkWrite.execute();
-        } catch (Exception e) {
-            throw new MongoDBQueryException("Query Exception: " + e.getLocalizedMessage());
-        }
+    public BulkWriteResult updateBulk() {
+        return this.bulkWrite.execute();
     }
 
     public void addBatch() throws MongoDBQueryException {
@@ -394,7 +340,10 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             }
             bulkWrite.insert(this.query);
         } else {
-            throw new MongoDBQueryException("Query format is invalid no collection found");
+            if (log.isDebugEnabled()) {
+                log.debug("Using query: " + defaultQuery);
+            }
+            throw new MongoDBQueryException("Invalid query format - no collection specified");
         }
 
     }
@@ -408,7 +357,10 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             BulkUpdateRequestBuilder updateReq = bulkWriteRequestBuilder.upsert();
             updateReq.replaceOne(this.projection);
         } else {
-            throw new MongoDBQueryException("Query format is invalid no collection found");
+            if (log.isDebugEnabled()) {
+                log.debug("Using query: " + defaultQuery);
+            }
+            throw new MongoDBQueryException("Invalid query format - no collection specified");
         }
     }
 
@@ -452,7 +404,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                 this.distinctKey = queryObject.getString("distinct");
             }
             // If query has $set attribute then query will be update query
-            if (query.contains("$set")) {
+            if (query.contains(MONGO_SET_FIELD)) {
                 getUpdateObject(queryObject);
             } else {
                 setQueryObject(queryObject, false);
@@ -478,13 +430,13 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             Object val = null;
             try {
                 JSONObject value = object.getJSONObject(key);
-                if (key.equals("projection")) {
+                if (key.equals(MONGO_PROJECTION_FIELD)) {
                     hasProjection = true;
                 }
                 setQueryObject(value, hasProjection);
             } catch (Exception e) {
                 // If a case insensitive then check for $regex attribute
-                if (key.equals("$regex")) {
+                if (key.equals(MONGO_REGEX_FIELD)) {
                     key = "UM_USER_NAME";
                     this.isCaseSensitive = false;
                 }
@@ -496,8 +448,8 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             if (val != null && !val.equals("%")) {
                 if (!this.isCaseSensitive) {
                     if (key.equals("UM_USER_NAME")) {
-                        mapCaseQuery.put("$regex", val);
-                        mapCaseQuery.put("$options", "i");
+                        mapCaseQuery.put(MONGO_REGEX_FIELD, val);
+                        mapCaseQuery.put(MONGO_OPTIONS_FIELD, MONGO_CASE_INSENSITIVE_OPTION);
                     } else {
                         mapQuery.put(key, val);
                     }
@@ -505,7 +457,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                     mapQuery.put(key, val);
                 }
             }
-            if (hasProjection && !key.equals("projection")) {
+            if (hasProjection && !key.equals(MONGO_PROJECTION_FIELD)) {
                 mapProjection.put(key, object.get(key));
             }
         }
@@ -529,9 +481,9 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         while (keys.hasNext()) {
             String key = keys.next();
             Object val;
-            if (key.equals("projection")) {
+            if (key.equals(MONGO_PROJECTION_FIELD)) {
                 JSONObject setObject = object.getJSONObject(key);
-                setUpdateObject(setObject.getJSONObject("$set"));
+                setUpdateObject(setObject.getJSONObject(MONGO_SET_FIELD));
             } else {
                 if (parameterValue.containsKey(key)) {
                     val = parameterValue.get(key);
@@ -547,7 +499,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      *
      * @param stmt JSONObject
      */
-    private void getAggregationObjects(JSONObject stmt) throws JSONException {
+    private void getAggregationObjects(JSONObject stmt) {
 
         Iterator<String> keys = stmt.keys();
         while (keys.hasNext()) {
@@ -603,10 +555,10 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                         String[] elements = JSONObject.getNames(match);
                         for (String element : elements) {
                             if (!val.equals("%")) {
-                                if (element.equals("$regex")) {
+                                if (element.equals(MONGO_REGEX_FIELD)) {
                                     mapMatchCaseInSensitive.put(element, val);
                                 } else {
-                                    mapMatchCaseInSensitive.put(element, "i");
+                                    mapMatchCaseInSensitive.put(element, MONGO_CASE_INSENSITIVE_OPTION);
                                 }
                                 this.isCaseSensitive = false;
                             }
@@ -627,7 +579,6 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @param stmt to update
      */
     private void setUpdateObject(JSONObject stmt) {
-
         String[] elementNames = JSONObject.getNames(stmt);
         for (String elementName : elementNames) {
             if (parameterValue.containsKey(elementName)) {
@@ -646,7 +597,111 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
      * @return boolean status
      */
     private boolean isMultipleLookUp() {
-        return !multipleLookUp;
+        return multipleLookUpStatus;
     }
 
+    /**
+     * Add lookup attribute to pipeline
+     *
+     * @param pipeline pipeline list, which needs to be modified
+     */
+    private void addLookUpAttribute(List<DBObject> pipeline) {
+        if (isMultipleLookUp()) {
+            DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(mapLookUp));
+            pipeline.add(lookup);
+        } else {
+            int track = 0;
+            // Add the json query object to aggregation pipeline in order manner
+            while (track < multiMapLookup.size()) {
+                for (Map<String, Object> map : multiMapLookup) {
+                    if (map.containsKey("dependency")) {
+                        map.remove("dependency");
+                        DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
+                        if (!pipeline.contains(lookup)) {
+                            for (Map<String, Object> unwindSearch : multiMapUnwind) {
+                                String key = "$" + map.get("as");
+                                if (unwindSearch.containsValue(key) && !pipeline.isEmpty()) {
+                                    DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(unwindSearch));
+                                    pipeline.add(unwind);
+                                    pipeline.add(lookup);
+                                    track++;
+                                }
+                            }
+                        }
+                    } else {
+                        DBObject lookup = new BasicDBObject("$lookup", new BasicDBObject(map));
+                        if (!pipeline.contains(lookup)) {
+                            pipeline.add(lookup);
+                            for (Map<String, Object> unwindSearch : multiMapUnwind) {
+                                String key = "$" + map.get("as");
+                                if (unwindSearch.containsValue(key)) {
+                                    DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(unwindSearch));
+                                    pipeline.add(unwind);
+                                    track++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Add unwind attribute to pipeline
+     *
+     * @param pipeline pipeline list, which needs to be modified
+     */
+    private void addUnwindAttribute(List<DBObject> pipeline) {
+        if (isMultipleLookUp()) {
+            DBObject unwind = new BasicDBObject("$unwind", new BasicDBObject(mapUnwind));
+            pipeline.add(unwind);
+        }
+    }
+
+    /**
+     * Add match attribute to pipeline
+     *
+     * @param pipeline pipeline list, which needs to be modified
+     */
+    private void addMatchAttribute(List<DBObject> pipeline) {
+        DBObject match;
+        if (this.isCaseSensitive) {
+            match = new BasicDBObject("$match", new BasicDBObject(mapMatch));
+        } else {
+            match = new BasicDBObject("$match", new BasicDBObject(mapMatch).
+                    append("UM_USER_NAME", new BasicDBObject(mapMatchCaseInSensitive)));
+        }
+        pipeline.add(match);
+    }
+
+    /**
+     * Add sort attribute to pipeline
+     *
+     * @param pipeline pipeline list, which needs to be modified
+     */
+    private void addSortAttribute(List<DBObject> pipeline) {
+        DBObject sort = new BasicDBObject("$sort", new BasicDBObject(mapSort));
+        pipeline.add(sort);
+    }
+
+    /**
+     * Add group attribute to pipeline
+     *
+     * @param pipeline pipeline list, which needs to be modified
+     */
+    private void addGroupAttribute(List<DBObject> pipeline) {
+        DBObject group = new BasicDBObject("$group", new BasicDBObject(mapGroup));
+        pipeline.add(group);
+    }
+
+    /**
+     * Add project attribute to pipeline
+     *
+     * @param pipeline pipeline list, which needs to be modified
+     */
+    private void addProjectAttribute(List<DBObject> pipeline) {
+        DBObject project = new BasicDBObject("$project", new BasicDBObject(mapProject));
+        pipeline.add(project);
+    }
 }

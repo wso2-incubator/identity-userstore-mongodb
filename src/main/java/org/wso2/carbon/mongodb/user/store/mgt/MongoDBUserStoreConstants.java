@@ -261,7 +261,6 @@ public class MongoDBUserStoreConstants {
                 "'$role.UM_TENANT_ID'},'$lookup' : '[{'from' : 'UM_USER','localField' : 'UM_USER_ID'," +
                 "'foreignField' : 'UM_ID','as' : 'users'},{'from' : 'UM_ROLE','localField' : 'UM_ROLE_ID'," +
                 "'foreignField' : 'UM_ID','$project' : {'name' : '$_id','UM_USER_NAME',1}}]'}");
-
     }
 
     // Private method to set optional properties
@@ -286,5 +285,4 @@ public class MongoDBUserStoreConstants {
         Property property = new Property(name, value, "", null);
         MONGODB_UM_ADVANCED_PROPERTIES.add(property);
     }
-
 }

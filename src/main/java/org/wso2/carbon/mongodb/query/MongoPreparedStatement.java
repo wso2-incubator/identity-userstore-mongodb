@@ -26,8 +26,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.AggregationOutput;
 import com.mongodb.BulkWriteResult;
 
-import org.wso2.carbon.user.api.UserStoreException;
-
 /**
  * MongoDB prepared statement interface
  */
@@ -90,10 +88,9 @@ public interface MongoPreparedStatement {
      * Search documents through aggregation pipeline from mongodb.
      *
      * @return AggregationOutput instance
-     * @throws UserStoreException if any exception occurred
      */
     @SuppressWarnings("deprecation")
-    AggregationOutput aggregate() throws UserStoreException;
+    AggregationOutput aggregate();
 
     /**
      * Update document in mongodb.
@@ -115,17 +112,15 @@ public interface MongoPreparedStatement {
      * Insert bulk documents to mongodb.
      *
      * @return BulkWriteResult instance
-     * @throws MongoDBQueryException if any exception occurred
      */
-    BulkWriteResult insertBulk() throws MongoDBQueryException;
+    BulkWriteResult insertBulk();
 
     /**
      * Update bulk documents to mongodb.
      *
      * @return BulkWriteResult instance
-     * @throws MongoDBQueryException if any exception occurred
      */
-    BulkWriteResult updateBulk() throws MongoDBQueryException;
+    BulkWriteResult updateBulk();
 
     /**
      * Add document to batch to bulk insert.
@@ -152,7 +147,7 @@ public interface MongoPreparedStatement {
     /**
      * Multiple lookup status.
      *
-     * @param stat boolean status
+     * @param status boolean status
      */
-    void multiLookUp(boolean stat);
+    void setMultiLookUp(boolean status);
 }
