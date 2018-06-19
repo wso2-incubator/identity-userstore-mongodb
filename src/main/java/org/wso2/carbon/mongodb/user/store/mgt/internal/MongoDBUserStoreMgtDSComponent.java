@@ -45,7 +45,7 @@ public class MongoDBUserStoreMgtDSComponent {
     private static RealmService realmService;
 
     /**
-     * To activate the MongoDB OSGI component
+     * To activate the MongoDB OSGI component.
      *
      * @param context ComponentContext
      */
@@ -72,7 +72,7 @@ public class MongoDBUserStoreMgtDSComponent {
     }
 
     /**
-     * Bind method
+     * Bind method.
      *
      * @param rlmService RealmService
      */
@@ -84,7 +84,7 @@ public class MongoDBUserStoreMgtDSComponent {
     }
 
     /**
-     * Unbind method
+     * Unbind method.
      *
      * @param rlmService RealmService
      */

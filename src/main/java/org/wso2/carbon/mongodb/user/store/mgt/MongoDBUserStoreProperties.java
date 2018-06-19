@@ -26,9 +26,9 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 /**
- * MongoDB default user store properties
+ * MongoDB default user store properties.
  */
-public class MongoDBUserStoreConstants {
+public class MongoDBUserStoreProperties {
 
     // Properties for User Store Manager
     static final List<Property> MONGODB_UM_MANDATORY_PROPERTIES = new ArrayList<>();
@@ -263,7 +263,7 @@ public class MongoDBUserStoreConstants {
     }
 
     /**
-     * Private method to set optional properties
+     * Private method to set optional properties.
      *
      * @param name        Property name
      * @param value       Property value
@@ -275,7 +275,7 @@ public class MongoDBUserStoreConstants {
     }
 
     /**
-     * Private method to set mandatory properties
+     * Private method to set mandatory properties.
      *
      * @param name        Property name
      * @param displayName Property display name
@@ -294,7 +294,7 @@ public class MongoDBUserStoreConstants {
     }
 
     /**
-     * Private method to set advanced properties
+     * Private method to set advanced properties.
      *
      * @param name  Property name
      * @param value Property value

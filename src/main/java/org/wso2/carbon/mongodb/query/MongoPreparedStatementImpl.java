@@ -41,31 +41,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.wso2.carbon.mongodb.user.store.mgt.MongoDBCoreConstants;
 
 /**
- * MongoDB Prepared Statement interface implementation class
+ * MongoDB Prepared Statement interface implementation class.
  */
 public class MongoPreparedStatementImpl implements MongoPreparedStatement {
 
     private static final Log log = LogFactory.getLog(MongoPreparedStatementImpl.class);
-
-    private static final String MONGO_REGEX_FIELD = "$regex";
-    private static final String MONGO_OPTIONS_FIELD = "$options";
-    private static final String MONGO_LOOKUP_FIELD = "$lookup";
-    private static final String MONGO_CASE_INSENSITIVE_OPTION = "i";
-    private static final String MONGO_PROJECTION_FIELD = "projection";
-    private static final String MONGO_COLLECTION_FIELD = "collection";
-    private static final String MONGO_DISTINCT_FIELD = "distinct";
-    private static final String MONGO_SET_FIELD = "$set";
-    private static final String MONGO_PROJECT_FIELD = "$project";
-    private static final String MONGO_SORT_FIELD = "$sort";
-    private static final String MONGO_GROUP_FIELD = "$group";
-    private static final String MONGO_UNWIND_FIELD = "$unwind";
-    private static final String MONGO_LOOKUP_SUB = "$lookup_sub";
-    private static final String MONGO_UNWIND_SUB = "$unwind_sub";
-    private static final String MONGO_DEPENDENCY_FIELD = "dependency";
-    private static final String MONGO_MATCH_FIELD = "$match";
-    private static final String UM_USER_NAME = "UM_USER_NAME";
 
     private DB db = null;
     private DBCollection collection = null;
@@ -93,7 +76,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     private Map<String, Object> mapCaseQuery = null;
 
     /**
-     * Constructor with two arguments
+     * Constructor with two arguments.
      *
      * @param db    DB connection to mongodb
      * @param query to execute
@@ -125,7 +108,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         if (mapCaseQuery == null) {
             this.mapCaseQuery = new HashMap<>();
         }
-        if (query.contains(MONGO_LOOKUP_FIELD)) {
+        if (query.contains(MongoDBCoreConstants.LOOKUP_FIELD)) {
             setMultiLookUp(true);
         }
         if (log.isDebugEnabled()) {
@@ -134,7 +117,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Convert JSON Object to Map Object
+     * Convert JSON Object to Map Object.
      *
      * @param object to convert
      * @return Map object
@@ -158,7 +141,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Convert JSON Array to List Object
+     * Convert JSON Array to List Object.
      *
      * @param array to convert to List
      * @return List object
@@ -312,7 +295,8 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             throw new MongoDBQueryException("Parameter count mismatch");
         } else {
             if (convertToDBObject(defaultQuery)) {
-                return this.collection.update(this.query, new BasicDBObject(MONGO_SET_FIELD, this.projection));
+                return this.collection.update(this.query, new BasicDBObject(MongoDBCoreConstants.SET_FIELD,
+                        this.projection));
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Using query: " + defaultQuery);
@@ -377,7 +361,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Check whether the provided arguments are equal to the parameters in json query
+     * Check whether the provided arguments are equal to the parameters in json query.
      *
      * @param query type JSONObject
      * @return boolean status whether the argument correct or not
@@ -400,23 +384,23 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * String JSON formatted query convert to DBObject
+     * String JSON formatted query convert to DBObject.
      *
      * @param query to execute
      * @return boolean status
      */
     private boolean convertToDBObject(String query) {
         JSONObject queryObject = new JSONObject(query);
-        if (queryObject.has(MONGO_COLLECTION_FIELD)) {
-            String collection = queryObject.getString(MONGO_COLLECTION_FIELD);
+        if (queryObject.has(MongoDBCoreConstants.COLLECTION_FIELD)) {
+            String collection = queryObject.getString(MongoDBCoreConstants.COLLECTION_FIELD);
             this.collection = this.db.getCollection(collection);
-            queryObject.remove(MONGO_COLLECTION_FIELD);
+            queryObject.remove(MongoDBCoreConstants.COLLECTION_FIELD);
             // Check whether the query has distinct key word
-            if (queryObject.has(MONGO_DISTINCT_FIELD)) {
-                this.distinctKey = queryObject.getString(MONGO_DISTINCT_FIELD);
+            if (queryObject.has(MongoDBCoreConstants.DISTINCT_FIELD)) {
+                this.distinctKey = queryObject.getString(MongoDBCoreConstants.DISTINCT_FIELD);
             }
             // If query has $set attribute then query will be update query
-            if (query.contains(MONGO_SET_FIELD)) {
+            if (query.contains(MongoDBCoreConstants.SET_FIELD)) {
                 getUpdateObject(queryObject);
             } else {
                 setQueryObject(queryObject, false);
@@ -428,7 +412,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * set passed values to query parameters
+     * set passed values to query parameters.
      *
      * @param object to execute
      * @param status boolean status
@@ -442,14 +426,14 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
             Object val = null;
             try {
                 JSONObject value = object.getJSONObject(key);
-                if (key.equals(MONGO_PROJECTION_FIELD)) {
+                if (key.equals(MongoDBCoreConstants.PROJECTION_FIELD)) {
                     hasProjection = true;
                 }
                 setQueryObject(value, hasProjection);
             } catch (Exception e) {
                 // If a case insensitive then check for $regex attribute
-                if (key.equals(MONGO_REGEX_FIELD)) {
-                    key = UM_USER_NAME;
+                if (key.equals(MongoDBCoreConstants.REGEX_FIELD)) {
+                    key = MongoDBCoreConstants.UM_USER_NAME;
                     this.isCaseSensitive = false;
                 }
                 // Replace query parameter with respective value
@@ -457,11 +441,12 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                     val = parameterValue.get(key);
                 }
             }
-            if (val != null && !val.equals("%")) {
+            if (val != null && !MongoDBCoreConstants.FILTER_OPERATOR.equals(val)) {
                 if (!this.isCaseSensitive) {
-                    if (key.equals(UM_USER_NAME)) {
-                        mapCaseQuery.put(MONGO_REGEX_FIELD, val);
-                        mapCaseQuery.put(MONGO_OPTIONS_FIELD, MONGO_CASE_INSENSITIVE_OPTION);
+                    if (key.equals(MongoDBCoreConstants.UM_USER_NAME)) {
+                        mapCaseQuery.put(MongoDBCoreConstants.REGEX_FIELD, val);
+                        mapCaseQuery.put(MongoDBCoreConstants.OPTIONS_FIELD,
+                                MongoDBCoreConstants.CASE_INSENSITIVE_OPTION);
                     } else {
                         mapQuery.put(key, val);
                     }
@@ -469,14 +454,14 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                     mapQuery.put(key, val);
                 }
             }
-            if (hasProjection && !key.equals(MONGO_PROJECTION_FIELD)) {
+            if (hasProjection && !key.equals(MongoDBCoreConstants.PROJECTION_FIELD)) {
                 mapProjection.put(key, object.get(key));
             }
         }
         if (this.isCaseSensitive) {
             this.query = new BasicDBObject(mapQuery);
         } else {
-            this.query = new BasicDBObject(mapQuery).append(UM_USER_NAME, mapCaseQuery);
+            this.query = new BasicDBObject(mapQuery).append(MongoDBCoreConstants.UM_USER_NAME, mapCaseQuery);
         }
         if (!mapProjection.isEmpty()) {
             this.projection = new BasicDBObject(mapProjection);
@@ -484,7 +469,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * get the updated object
+     * get the updated object.
      *
      * @param object to update
      */
@@ -493,9 +478,9 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         while (keys.hasNext()) {
             String key = keys.next();
             Object val;
-            if (key.equals(MONGO_PROJECTION_FIELD)) {
+            if (key.equals(MongoDBCoreConstants.PROJECTION_FIELD)) {
                 JSONObject setObject = object.getJSONObject(key);
-                setUpdateObject(setObject.getJSONObject(MONGO_SET_FIELD));
+                setUpdateObject(setObject.getJSONObject(MongoDBCoreConstants.SET_FIELD));
             } else {
                 if (parameterValue.containsKey(key)) {
                     val = parameterValue.get(key);
@@ -507,7 +492,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Convert JSON Query to Aggregation Pipeline Object
+     * Convert JSON Query to Aggregation Pipeline Object.
      *
      * @param stmt JSONObject
      */
@@ -516,24 +501,25 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
         Iterator<String> keys = stmt.keys();
         while (keys.hasNext()) {
             String key = keys.next();
-            if (key.equals(MONGO_COLLECTION_FIELD)) {
+            if (key.equals(MongoDBCoreConstants.COLLECTION_FIELD)) {
                 this.collection = db.getCollection(stmt.get(key).toString());
             } else {
                 JSONObject value = stmt.getJSONObject(key);
-                if (key.equals(MONGO_LOOKUP_FIELD) || key.contains(MONGO_LOOKUP_SUB)) {
+                if (key.equals(MongoDBCoreConstants.LOOKUP_FIELD) || key.contains(MongoDBCoreConstants.LOOKUP_SUB)) {
                     if (isMultipleLookUp()) {
                         mapLookUp = toMap(value);
                     } else {
                         mapLookUp = toMap(value);
                         multiMapLookup.add(mapLookUp);
                     }
-                } else if (key.equals(MONGO_PROJECT_FIELD)) {
+                } else if (key.equals(MongoDBCoreConstants.PROJECT_FIELD)) {
                     mapProject = toMap(value);
-                } else if (key.equals(MONGO_SORT_FIELD)) {
+                } else if (key.equals(MongoDBCoreConstants.SORT_FIELD)) {
                     mapSort = toMap(value);
-                } else if (key.equals(MONGO_GROUP_FIELD)) {
+                } else if (key.equals(MongoDBCoreConstants.GROUP_FIELD)) {
                     mapGroup = toMap(value);
-                } else if (key.equals(MONGO_UNWIND_FIELD) || key.equals(MONGO_UNWIND_SUB)) {
+                } else if (key.equals(MongoDBCoreConstants.UNWIND_FIELD) ||
+                        key.equals(MongoDBCoreConstants.UNWIND_SUB)) {
                     if (isMultipleLookUp()) {
                         mapUnwind = toMap(value);
                     } else {
@@ -548,45 +534,40 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * set object parameter with passed values
+     * Set object parameter with passed values.
      *
      * @param stmt to set values
      */
     private void setMatchObject(JSONObject stmt) {
-
         String[] elementNames = JSONObject.getNames(stmt);
         for (String elementName : elementNames) {
             Object value = stmt.get(elementName);
             if (parameterValue.containsKey(elementName)) {
                 Object val = parameterValue.get(elementName);
-                if (!(value instanceof JSONObject) && !val.equals("%")) {
+                if (!(value instanceof JSONObject) && !MongoDBCoreConstants.FILTER_OPERATOR.equals(val)) {
                     mapMatch.put(elementName, val);
-                } else {
-                    if (value instanceof JSONObject) {
-                        JSONObject match = (JSONObject) value;
-                        String[] elements = JSONObject.getNames(match);
-                        for (String element : elements) {
-                            if (!val.equals("%")) {
-                                if (element.equals(MONGO_REGEX_FIELD)) {
-                                    mapMatchCaseInSensitive.put(element, val);
-                                } else {
-                                    mapMatchCaseInSensitive.put(element, MONGO_CASE_INSENSITIVE_OPTION);
-                                }
-                                this.isCaseSensitive = false;
+                } else if (value instanceof JSONObject) {
+                    JSONObject match = (JSONObject) value;
+                    String[] elements = JSONObject.getNames(match);
+                    for (String element : elements) {
+                        if (!MongoDBCoreConstants.FILTER_OPERATOR.equals(val)) {
+                            if (element.equals(MongoDBCoreConstants.REGEX_FIELD)) {
+                                mapMatchCaseInSensitive.put(element, val);
+                            } else {
+                                mapMatchCaseInSensitive.put(element, MongoDBCoreConstants.CASE_INSENSITIVE_OPTION);
                             }
-                        }
-                    } else {
-                        if (!val.equals("%")) {
-                            mapMatch.put(elementName, val);
+                            this.isCaseSensitive = false;
                         }
                     }
+                } else if (!MongoDBCoreConstants.FILTER_OPERATOR.equals(val)) {
+                    mapMatch.put(elementName, val);
                 }
             }
         }
     }
 
     /**
-     * JSON query will update with  user values
+     * JSON query will update with  user values.
      *
      * @param stmt to update
      */
@@ -604,7 +585,7 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Check for multiple look up for aggregation pipeline
+     * Check for multiple look up for aggregation pipeline.
      *
      * @return boolean status
      */
@@ -613,27 +594,27 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Add lookup attribute to pipeline
+     * Add lookup attribute to pipeline.
      *
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addLookUpAttribute(List<DBObject> pipeline) {
         if (isMultipleLookUp()) {
-            DBObject lookup = new BasicDBObject(MONGO_LOOKUP_FIELD, new BasicDBObject(mapLookUp));
+            DBObject lookup = new BasicDBObject(MongoDBCoreConstants.LOOKUP_FIELD, new BasicDBObject(mapLookUp));
             pipeline.add(lookup);
         } else {
             int track = 0;
             // Add the json query object to aggregation pipeline in order manner
             while (track < multiMapLookup.size()) {
                 for (Map<String, Object> map : multiMapLookup) {
-                    if (map.containsKey(MONGO_DEPENDENCY_FIELD)) {
-                        map.remove(MONGO_DEPENDENCY_FIELD);
-                        DBObject lookup = new BasicDBObject(MONGO_LOOKUP_FIELD, new BasicDBObject(map));
+                    if (map.containsKey(MongoDBCoreConstants.DEPENDENCY_FIELD)) {
+                        map.remove(MongoDBCoreConstants.DEPENDENCY_FIELD);
+                        DBObject lookup = new BasicDBObject(MongoDBCoreConstants.LOOKUP_FIELD, new BasicDBObject(map));
                         if (!pipeline.contains(lookup)) {
                             for (Map<String, Object> unwindSearch : multiMapUnwind) {
                                 String key = "$" + map.get("as");
                                 if (unwindSearch.containsValue(key) && !pipeline.isEmpty()) {
-                                    DBObject unwind = new BasicDBObject(MONGO_UNWIND_FIELD,
+                                    DBObject unwind = new BasicDBObject(MongoDBCoreConstants.UNWIND_FIELD,
                                             new BasicDBObject(unwindSearch));
                                     pipeline.add(unwind);
                                     pipeline.add(lookup);
@@ -642,13 +623,13 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
                             }
                         }
                     } else {
-                        DBObject lookup = new BasicDBObject(MONGO_LOOKUP_FIELD, new BasicDBObject(map));
+                        DBObject lookup = new BasicDBObject(MongoDBCoreConstants.LOOKUP_FIELD, new BasicDBObject(map));
                         if (!pipeline.contains(lookup)) {
                             pipeline.add(lookup);
                             for (Map<String, Object> unwindSearch : multiMapUnwind) {
                                 String key = "$" + map.get("as");
                                 if (unwindSearch.containsValue(key)) {
-                                    DBObject unwind = new BasicDBObject(MONGO_UNWIND_FIELD,
+                                    DBObject unwind = new BasicDBObject(MongoDBCoreConstants.UNWIND_FIELD,
                                             new BasicDBObject(unwindSearch));
                                     pipeline.add(unwind);
                                     track++;
@@ -662,60 +643,60 @@ public class MongoPreparedStatementImpl implements MongoPreparedStatement {
     }
 
     /**
-     * Add unwind attribute to pipeline
+     * Add unwind attribute to pipeline.
      *
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addUnwindAttribute(List<DBObject> pipeline) {
         if (isMultipleLookUp()) {
-            DBObject unwind = new BasicDBObject(MONGO_UNWIND_FIELD, new BasicDBObject(mapUnwind));
+            DBObject unwind = new BasicDBObject(MongoDBCoreConstants.UNWIND_FIELD, new BasicDBObject(mapUnwind));
             pipeline.add(unwind);
         }
     }
 
     /**
-     * Add match attribute to pipeline
+     * Add match attribute to pipeline.
      *
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addMatchAttribute(List<DBObject> pipeline) {
         DBObject match;
         if (this.isCaseSensitive) {
-            match = new BasicDBObject(MONGO_MATCH_FIELD, new BasicDBObject(mapMatch));
+            match = new BasicDBObject(MongoDBCoreConstants.MATCH_FIELD, new BasicDBObject(mapMatch));
         } else {
-            match = new BasicDBObject(MONGO_MATCH_FIELD, new BasicDBObject(mapMatch).
-                    append(UM_USER_NAME, new BasicDBObject(mapMatchCaseInSensitive)));
+            match = new BasicDBObject(MongoDBCoreConstants.MATCH_FIELD, new BasicDBObject(mapMatch).
+                    append(MongoDBCoreConstants.UM_USER_NAME, new BasicDBObject(mapMatchCaseInSensitive)));
         }
         pipeline.add(match);
     }
 
     /**
-     * Add sort attribute to pipeline
+     * Add sort attribute to pipeline.
      *
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addSortAttribute(List<DBObject> pipeline) {
-        DBObject sort = new BasicDBObject(MONGO_SORT_FIELD, new BasicDBObject(mapSort));
+        DBObject sort = new BasicDBObject(MongoDBCoreConstants.SORT_FIELD, new BasicDBObject(mapSort));
         pipeline.add(sort);
     }
 
     /**
-     * Add group attribute to pipeline
+     * Add group attribute to pipeline.
      *
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addGroupAttribute(List<DBObject> pipeline) {
-        DBObject group = new BasicDBObject(MONGO_GROUP_FIELD, new BasicDBObject(mapGroup));
+        DBObject group = new BasicDBObject(MongoDBCoreConstants.GROUP_FIELD, new BasicDBObject(mapGroup));
         pipeline.add(group);
     }
 
     /**
-     * Add project attribute to pipeline
+     * Add project attribute to pipeline.
      *
      * @param pipeline pipeline list, which needs to be modified
      */
     private void addProjectAttribute(List<DBObject> pipeline) {
-        DBObject project = new BasicDBObject(MONGO_PROJECT_FIELD, new BasicDBObject(mapProject));
+        DBObject project = new BasicDBObject(MongoDBCoreConstants.PROJECT_FIELD, new BasicDBObject(mapProject));
         pipeline.add(project);
     }
 }

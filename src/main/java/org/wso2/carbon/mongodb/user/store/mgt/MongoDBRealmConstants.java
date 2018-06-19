@@ -19,7 +19,7 @@
 package org.wso2.carbon.mongodb.user.store.mgt;
 
 /**
- * MongoDBRealmConstants contain all the case sensitive user store queries
+ * MongoDBRealmConstants contain all the case sensitive user store queries.
  */
 public class MongoDBRealmConstants {
 

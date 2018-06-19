@@ -24,12 +24,12 @@ import org.wso2.carbon.mongodb.user.store.mgt.MongoDBRealmConstants;
 import org.wso2.carbon.mongodb.user.store.mgt.caseinsensitive.MongoDBCaseInsensitiveConstants;
 
 /**
- * Map default MongoDB User store queries if they are not configured in user-mgt.xml
+ * Map default MongoDB User store queries if they are not configured in user-mgt.xml.
  */
 public class MongoDBRealmUtil {
 
     /**
-     * Get MongoDB user store properties (Sets default properties if already not available)
+     * Get MongoDB user store properties (Sets default properties if already not available).
      *
      * @param properties map with user store properties
      * @return map with default properties added

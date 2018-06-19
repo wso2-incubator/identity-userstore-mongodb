@@ -81,7 +81,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.mongodb.query.MongoDBQueryException;
 
 /**
- * MongoDBUserStoreManager class for create MongoDBUserStore
+ * MongoDBUserStoreManager class for create MongoDBUserStore.
  */
 public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
@@ -92,13 +92,13 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     private SecureRandom random = new SecureRandom();
 
     /**
-     * Empty Constructor
+     * Empty Constructor.
      */
     public MongoDBUserStoreManager() {
     }
 
     /**
-     * Constructor which accept two parameters
+     * Constructor which accept two parameters.
      *
      * @param configuration RealmConfiguration to user store
      * @param tenantId      currently logged in tenantId
@@ -115,10 +115,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null) {
             writeGroupsEnabled = Boolean.parseBoolean(
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
-        } else {
-            if (!isReadOnly()) {
-                writeGroupsEnabled = true;
-            }
+        } else if (!isReadOnly()) {
+            writeGroupsEnabled = true;
         }
 
         if (writeGroupsEnabled) {
@@ -129,7 +127,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Constructor with four arguments
+     * Constructor with four arguments.
      *
      * @param db          data source of user store
      * @param realmConfig realm configuration
@@ -162,7 +160,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Constructor with two parameters
+     * Constructor with two parameters.
      *
      * @param db          mongodb data source
      * @param realmConfig realm configuration
@@ -174,7 +172,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * constructor with  6 parameters
+     * constructor with  6 parameters.
      *
      * @param realmConfig    realm configuration
      * @param properties     realm properties
@@ -190,7 +188,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Constructor with seven parameters
+     * Constructor with seven parameters.
      *
      * @param realmConfig    realm configuration
      * @param properties     realm properties
@@ -249,7 +247,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get all user properties belong to provided user profile
+     * Get all user properties belong to provided user profile.
      *
      * @param userName      username of user
      * @param propertyNames names of properties to get
@@ -273,19 +271,19 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_PROPS_FOR_PROFILE);
             prepStmt = new MongoPreparedStatementImpl(db, mongoQuery);
-            prepStmt.setString("users.UM_USER_NAME", userName);
-            prepStmt.setString("UM_PROFILE_NAME", profileName);
+            prepStmt.setString(MongoDBCoreConstants.USERS_UM_USER_NAME, userName);
+            prepStmt.setString(MongoDBCoreConstants.UM_PROFILE_NAME, profileName);
 
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt("users.UM_TENANT_ID", tenantId);
-                prepStmt.setInt("UM_TENANT_ID", tenantId);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                prepStmt.setInt(MongoDBCoreConstants.USERS_UM_TENANT_ID, tenantId);
+                prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             }
             //noinspection deprecation
             AggregationOutput aggregationOutput = prepStmt.aggregate();
             Iterable<DBObject> results = aggregationOutput.results();
             for (DBObject object : results) {
-                object.removeField("_id");
-                object.removeField("users");
+                object.removeField(MongoDBCoreConstants.ID);
+                object.removeField(MongoDBCoreConstants.USERS_FIELD);
                 Set<String> keys = object.keySet();
                 for (String key : keys) {
                     String value = object.get(key).toString();
@@ -304,7 +302,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Check whether the supplied role is available in user store
+     * Check whether the supplied role is available in user store.
      *
      * @param roleName role name to check
      * @return boolean
@@ -315,7 +313,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Create context of given role
+     * Create context of given role.
      *
      * @param roleName role name to create context
      * @return RoleContext created for given role
@@ -340,7 +338,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Check whether the role is exists in mongodb
+     * Check whether the role is exists in mongodb.
      *
      * @param context of role created
      * @return boolean status whether the role exists or not
@@ -349,13 +347,13 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         boolean isExisting;
         String roleName = context.getRoleName();
         Map<String, Object> map = new HashMap<>();
-        map.put("UM_ROLE_NAME", roleName);
+        map.put(MongoDBCoreConstants.UM_ROLE_NAME, roleName);
         String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_IS_ROLE_EXISTING);
         if (mongoQuery == null) {
             throw new UserStoreException("Mongo query cannot be null");
         }
-        if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            map.put("UM_TENANT_ID", ((JDBCRoleContext) context).getTenantId());
+        if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+            map.put(MongoDBCoreConstants.UM_TENANT_ID, ((JDBCRoleContext) context).getTenantId());
             isExisting = isValueExisting(mongoQuery, map);
         } else {
             isExisting = isValueExisting(mongoQuery, map);
@@ -379,7 +377,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * check whether the user is exists in user store
+     * check whether the user is exists in user store.
      *
      * @param userName given to check
      * @return boolean true or false respectively for user exists or not
@@ -398,7 +396,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("Mongo query is null. Cannot check the existence of user");
         }
         boolean isExisting;
-        map.put("UM_USER_NAME", userName);
+        map.put(MongoDBCoreConstants.UM_USER_NAME, userName);
         String isUnique = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_UNIQUE);
         if ("true".equals(isUnique)
                 && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
@@ -407,19 +405,18 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             if (log.isDebugEnabled()) {
                 log.debug("The username should be unique across tenants.");
             }
+        } else if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+            map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+            isExisting = isValueExisting(mongoQuery, map);
         } else {
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                map.put("UM_TENANT_ID", tenantId);
-                isExisting = isValueExisting(mongoQuery, map);
-            } else {
-                isExisting = isValueExisting(mongoQuery, map);
-            }
+            isExisting = isValueExisting(mongoQuery, map);
         }
+
         return isExisting;
     }
 
     /**
-     * Get user list from provided properties
+     * Get user list from provided properties.
      *
      * @param property    name
      * @param value       of property name
@@ -439,13 +436,12 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             db = loadUserStoreSpecificDataSource();
             String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USERS_FOR_PROP);
             prepStmt = new MongoPreparedStatementImpl(db, mongoQuery);
-            prepStmt.setString("UM_ATTR_NAME", property);
-            prepStmt.setString("UM_ATTR_VALUE", value);
-            prepStmt.setString("UM_PROFILE_ID", profileName);
+            prepStmt.setString(MongoDBCoreConstants.UM_ATTR_NAME, property);
+            prepStmt.setString(MongoDBCoreConstants.UM_ATTR_VALUE, value);
+            prepStmt.setString(MongoDBCoreConstants.UM_PROFILE_ID, profileName);
             DBCursor cursor = prepStmt.find();
             while (cursor.hasNext()) {
-
-                String name = cursor.next().get("UM_USER_NAME").toString();
+                String name = cursor.next().get(MongoDBCoreConstants.UM_USER_NAME).toString();
                 list.add(name);
             }
             if (list.size() > 0) {
@@ -462,7 +458,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Responsible for authenticate user
+     * Responsible for authenticate user.
      *
      * @param userName   of authenticating user
      * @param credential include user password of authenticating user
@@ -497,22 +493,23 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             if (log.isDebugEnabled()) {
                 log.debug(mongoQuery);
             }
-            prepStmt.setString("UM_USER_NAME", userName);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt("UM_TENANT_ID", tenantId);
+            prepStmt.setString(MongoDBCoreConstants.UM_USER_NAME, userName);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             }
             DBCursor cursor = prepStmt.find();
             if (cursor.hasNext()) {
                 DBObject object = cursor.next();
-                String storedPassword = object.get("UM_USER_PASSWORD").toString();
+                String storedPassword = object.get(MongoDBCoreConstants.UM_USER_PASSWORD).toString();
                 String saltValue = null;
                 if ("true".equalsIgnoreCase(
                         realmConfig.getUserStoreProperty(MongoDBRealmConstants.STORE_SALTED_PASSWORDS))) {
-                    saltValue = object.get("UM_SALT_VALUE").toString();
+                    saltValue = object.get(MongoDBCoreConstants.UM_SALT_VALUE).toString();
                 }
 
-                boolean requireChange = Boolean.parseBoolean(object.get("UM_REQUIRE_CHANGE").toString());
-                Date timestamp = (Date) object.get("UM_CHANGED_TIME");
+                boolean requireChange =
+                        Boolean.parseBoolean(object.get(MongoDBCoreConstants.UM_REQUIRE_CHANGE).toString());
+                Date timestamp = (Date) object.get(MongoDBCoreConstants.UM_CHANGED_TIME);
                 GregorianCalendar gc = new GregorianCalendar();
                 gc.add(GregorianCalendar.HOUR, -24);
                 Date date = gc.getTime();
@@ -574,7 +571,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Add new user to mongodb user store
+     * Add new user to mongodb user store.
      *
      * @param userName              of new user
      * @param credential            of new user
@@ -589,7 +586,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Update user credentials in user store
+     * Update user credentials in user store.
      *
      * @param userName      of user to update credentials
      * @param oldCredential of user
@@ -601,7 +598,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Update admin user credentials in user store
+     * Update admin user credentials in user store.
      *
      * @param userName      of admin to update credentials
      * @param newCredential of user to update
@@ -624,30 +621,30 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             saltValue = generateSaltValue();
         }
         String password = this.preparePassword(newCredential, saltValue);
-        map.put("UM_USER_NAME", userName);
-        map.put("UM_USER_PASSWORD", password);
+        map.put(MongoDBCoreConstants.UM_USER_NAME, userName);
+        map.put(MongoDBCoreConstants.UM_USER_PASSWORD, password);
 
-        if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
-            map.put("UM_REQUIRE_CHANGE", false);
-            map.put("UM_TENANT_ID", tenantId);
-            map.put("UM_CHANGED_TIME", new Date());
-            map.put("UM_SALT_VALUE", "");
+        if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID) && saltValue == null) {
+            map.put(MongoDBCoreConstants.UM_REQUIRE_CHANGE, false);
+            map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+            map.put(MongoDBCoreConstants.UM_CHANGED_TIME, new Date());
+            map.put(MongoDBCoreConstants.UM_SALT_VALUE, "");
             updateStringValuesToDatabase(null, mongoQuery, map);
-        } else if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue != null) {
-            map.put("UM_REQUIRE_CHANGE", false);
-            map.put("UM_TENANT_ID", tenantId);
-            map.put("UM_CHANGED_TIME", new Date());
-            map.put("UM_SALT_VALUE", saltValue);
+        } else if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID) && saltValue != null) {
+            map.put(MongoDBCoreConstants.UM_REQUIRE_CHANGE, false);
+            map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+            map.put(MongoDBCoreConstants.UM_CHANGED_TIME, new Date());
+            map.put(MongoDBCoreConstants.UM_SALT_VALUE, saltValue);
             updateStringValuesToDatabase(null, mongoQuery, map);
-        } else if (!mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
-            map.put("UM_REQUIRE_CHANGE", false);
-            map.put("UM_CHANGED_TIME", new Date());
-            map.put("UM_SALT_VALUE", "");
+        } else if (!mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID) && saltValue == null) {
+            map.put(MongoDBCoreConstants.UM_REQUIRE_CHANGE, false);
+            map.put(MongoDBCoreConstants.UM_CHANGED_TIME, new Date());
+            map.put(MongoDBCoreConstants.UM_SALT_VALUE, "");
             updateStringValuesToDatabase(null, mongoQuery, map);
         } else {
-            map.put("UM_REQUIRE_CHANGE", false);
-            map.put("UM_CHANGED_TIME", new Date());
-            map.put("UM_SALT_VALUE", saltValue);
+            map.put(MongoDBCoreConstants.UM_REQUIRE_CHANGE, false);
+            map.put(MongoDBCoreConstants.UM_CHANGED_TIME, new Date());
+            map.put(MongoDBCoreConstants.UM_SALT_VALUE, saltValue);
             updateStringValuesToDatabase(null, mongoQuery, map);
         }
     }
@@ -672,7 +669,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         List<String> keys = MongoDatabaseUtil.getKeys(jsonKeys);
         prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
         for (String key : keys) {
-            if (!(key.equals("collection") || key.equals("projection") || key.equals("$set"))) {
+            if (!(MongoDBCoreConstants.COLLECTION_FIELD.equals(key) ||
+                    MongoDBCoreConstants.PROJECTION_FIELD.equals(key) ||
+                    MongoDBCoreConstants.SET_FIELD.equals(key))) {
                 for (Map.Entry<String, Object> entry : params.entrySet()) {
                     if (entry.getKey().equals(key)) {
                         if (entry.getValue() == null) {
@@ -712,10 +711,10 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (map == null) {
             throw new UserStoreException("Parameters cannot be null");
         } else {
-            DBCollection collection = dbConnection.getCollection("UM_USER_ATTRIBUTE");
+            DBCollection collection = dbConnection.getCollection(MongoDBCoreConstants.UM_USER_ATTRIBUTE);
             if (!isUpdateTrue) {
-                int id = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER_ATTRIBUTE");
-                BasicDBObject query = new BasicDBObject("UM_ID", id);
+                int id = MongoDatabaseUtil.getIncrementedSequence(dbConnection, MongoDBCoreConstants.UM_USER_ATTRIBUTE);
+                BasicDBObject query = new BasicDBObject(MongoDBCoreConstants.UM_ID, id);
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
                     query.append(entry.getKey(), entry.getValue());
                 }
@@ -724,7 +723,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 BasicDBObject condition = null;
                 BasicDBObject setQuery = null;
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    if (entry.getKey().equals("UM_USER_ID") || entry.getKey().equals("UM_PROFILE_ID")) {
+                    if (entry.getKey().equals(MongoDBCoreConstants.UM_USER_ID) ||
+                            entry.getKey().equals(MongoDBCoreConstants.UM_PROFILE_ID)) {
                         if (condition == null) {
                             condition = new BasicDBObject(entry.getKey(), entry.getValue());
                         } else {
@@ -739,7 +739,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
                 if (condition != null && setQuery != null) {
-                    setQuery = new BasicDBObject("$set", setQuery);
+                    setQuery = new BasicDBObject(MongoDBCoreConstants.SET_FIELD, setQuery);
                     collection.update(condition, setQuery);
                 }
             }
@@ -760,7 +760,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             JSONObject jsonKeys = new JSONObject(mongoQuery);
             List<String> keys = MongoDatabaseUtil.getKeys(jsonKeys);
             for (String key : keys) {
-                if (!key.equals("collection")) {
+                if (!key.equals(MongoDBCoreConstants.COLLECTION_FIELD)) {
                     if (params.get(key) == null) {
                         prepStmt.setString(key, null);
                     } else if (params.get(key) instanceof String) {
@@ -786,7 +786,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Delete user from user store
+     * Delete user from user store.
      *
      * @param userName of user to delete
      * @throws UserStoreException if loading user store fails
@@ -805,11 +805,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE);
             mongoQuery2 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE);
             mongoQuery3 = realmConfig.getUserStoreProperty(MongoDBRealmConstants.DELETE_USER);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                map.put("UM_USER_ID", user_id);
-                map.put("UM_TENANT_ID", tenantId);
-                map.put("UM_USER_NAME", userName);
-                map.put("UM_ID", user_id);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                map.put(MongoDBCoreConstants.UM_USER_ID, user_id);
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+                map.put(MongoDBCoreConstants.UM_USER_NAME, userName);
+                map.put(MongoDBCoreConstants.UM_ID, user_id);
                 this.deleteStringValuesFromDatabase(dbConnection, mongoQuery, map);
                 this.deleteStringValuesFromDatabase(dbConnection, mongoQuery2, map);
                 this.deleteStringValuesFromDatabase(dbConnection, mongoQuery3, map);
@@ -818,7 +818,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Set user claim value of registered user in user store
+     * Set user claim value of registered user in user store.
      *
      * @param userName    of registered user
      * @param claimValue  of user to set
@@ -841,8 +841,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             int userId = getUserId(userName);
             String value = getProperty(dbConnection, userId);
             Map<String, Object> map = new HashMap<>();
-            map.put("UM_USER_ID", userId);
-            map.put("UM_PROFILE_ID", profileName);
+            map.put(MongoDBCoreConstants.UM_USER_ID, userId);
+            map.put(MongoDBCoreConstants.UM_PROFILE_ID, profileName);
             if (value == null) {
                 addProperty(dbConnection, map);
             } else {
@@ -855,7 +855,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get a user claim property of given user
+     * Get a user claim property of given user.
      *
      * @param dbConnection of mongodb
      * @param userId       of user to get property
@@ -870,14 +870,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
         String value = null;
         MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
-        prepStmt.setInt("UM_USER_ID", userId);
-        if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            prepStmt.setInt("UM_TENANT_ID", tenantId);
+        prepStmt.setInt(MongoDBCoreConstants.UM_USER_ID, userId);
+        if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+            prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
         }
         try {
             DBCursor cursor = prepStmt.find();
             while (cursor.hasNext()) {
-                value = cursor.next().get("UM_ID").toString();
+                value = cursor.next().get(MongoDBCoreConstants.UM_ID).toString();
             }
         } catch (MongoDBQueryException e) {
             throw new UserStoreException("MongoDBQueryException occurred. Cannot get property", e);
@@ -886,7 +886,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Set user claim values of registered user in user store
+     * Set user claim values of registered user in user store.
      *
      * @param userName    of registered user
      * @param claims      of user to set
@@ -914,8 +914,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 }
             }
             int userId = getUserId(userName);
-            map.put("UM_USER_ID", userId);
-            map.put("UM_PROFILE_ID", profileName);
+            map.put(MongoDBCoreConstants.UM_USER_ID, userId);
+            map.put(MongoDBCoreConstants.UM_PROFILE_ID, profileName);
             String userValueExists = getProperty(dbConnection, userId);
             if (userValueExists == null) {
                 addProperty(dbConnection, map);
@@ -940,8 +940,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (mongoQuery == null) {
             throw new UserStoreException("Mongo query is null. Cannot update property");
         }
-        if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            map.put("UM_TENANT_ID", tenantId);
+        if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+            map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             updateUserClaimValuesToDatabase(dbConnection, map, true);
         } else {
             updateUserClaimValuesToDatabase(dbConnection, map, true);
@@ -949,7 +949,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Delete user claim value of given user claim
+     * Delete user claim value of given user claim.
      *
      * @param userName    of user
      * @param claimURI    to delete from user
@@ -995,20 +995,20 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
 
         MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(dbConnection, query);
-        prepStmt.setString("UM_USER_NAME", userName);
-        prepStmt.setInt("UM_TENANT_ID", tenantId);
+        prepStmt.setString(MongoDBCoreConstants.UM_USER_NAME, userName);
+        prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
         DBCursor cursor = prepStmt.find();
 
         if (cursor.hasNext()) {
-            int userId = Integer.parseInt(cursor.next().get("UM_ID").toString());
-            map.put("UM_USER_ID", userId);
-            map.put("UM_ATTR_NAME", property);
-            map.put("UM_PROFILE_ID", profileName);
+            int userId = Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
+            map.put(MongoDBCoreConstants.UM_USER_ID, userId);
+            map.put(MongoDBCoreConstants.UM_ATTR_NAME, property);
+            map.put(MongoDBCoreConstants.UM_PROFILE_ID, profileName);
             if (mongoQuery == null) {
                 throw new UserStoreException("Mongo query is null. Cannot delete property");
             }
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                map.put("UM_TENANT_ID", tenantId);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 updateStringValuesToDatabase(dbConnection, mongoQuery, map);
             } else {
                 updateStringValuesToDatabase(dbConnection, mongoQuery, map);
@@ -1017,7 +1017,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * delete user claim values of given user claims
+     * Delete user claim values of given user claims.
      *
      * @param userName    of user
      * @param claims      to delete from user
@@ -1046,7 +1046,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Update user list of a given role
+     * Update user list of a given role.
      *
      * @param roleName     Role name of user to update
      * @param deletedUsers Send this param fill with if want to remove user from role
@@ -1093,11 +1093,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             String[] roles = {roleName};
             int roleIds[] = getRolesIDS(dbConnection, roles);
             Map<String, Object> mapRole = new HashMap<>();
-            mapRole.put("UM_USER_ID", userIds);
-            mapRole.put("UM_ROLE_ID", roleIds[0]);
+            mapRole.put(MongoDBCoreConstants.UM_USER_ID, userIds);
+            mapRole.put(MongoDBCoreConstants.UM_ROLE_ID, roleIds[0]);
             if (isShared) {
-                mapRole.put("UM_ROLE_TENANT_ID", roleTenantId);
-                mapRole.put("UM_USER_TENANT_ID", this.tenantId);
+                mapRole.put(MongoDBCoreConstants.UM_ROLE_TENANT_ID, roleTenantId);
+                mapRole.put(MongoDBCoreConstants.UM_USER_TENANT_ID, this.tenantId);
                 if (newUsers.length > 0) {
                     MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2, mapRole);
                 }
@@ -1105,10 +1105,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     MongoDatabaseUtil.deleteUserMappingInBatchMode(dbConnection, mongoQuery, mapRole);
                 }
             } else {
-                mapRole.put("UM_TENANT_ID", roleTenantId);
+                mapRole.put(MongoDBCoreConstants.UM_TENANT_ID, roleTenantId);
                 if (newUsers.length > 0) {
-                    int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER_ROLE");
-                    mapRole.put("UM_ID", userRoleId);
+                    int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection,
+                            MongoDBCoreConstants.UM_USER_ROLE);
+                    mapRole.put(MongoDBCoreConstants.UM_ID, userRoleId);
                     MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2, mapRole);
                 }
                 if (deletedUsers != null && deletedUsers.length > 0) {
@@ -1123,6 +1124,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
+     * Update role list of user.
+     *
      * @param userName     of user to update
      * @param deletedRoles send this param fill with if want to remove role from user
      * @param newRoles     send this param fill with if want to add role to user
@@ -1158,19 +1161,19 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     }
                     MongoPreparedStatement prepStmt2 = new MongoPreparedStatementImpl(dbConnection,
                             MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME_MONGO_QUERY);
-                    prepStmt2.setString("UM_USER_NAME", userName);
+                    prepStmt2.setString(MongoDBCoreConstants.UM_USER_NAME, userName);
                     int rolesID[] = getRolesIDS(dbConnection, roles);
                     int userID;
-                    if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                        prepStmt2.setInt("UM_TENANT_ID", tenantId);
+                    if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                        prepStmt2.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                     }
                     DBCursor cursor = prepStmt2.find();
-                    userID = Integer.parseInt(cursor.next().get("UM_ID").toString());
+                    userID = Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
 
-                    mapRole.put("UM_USER_ID", userID);
-                    mapRole.put("UM_ROLE_ID", rolesID);
-                    if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                        mapRole.put("UM_TENANT_ID", tenantId);
+                    mapRole.put(MongoDBCoreConstants.UM_USER_ID, userID);
+                    mapRole.put(MongoDBCoreConstants.UM_ROLE_ID, rolesID);
+                    if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                        mapRole.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                         MongoDatabaseUtil.deleteUserRoleMappingInBatchMode(dbConnection, mongoQuery, mapRole);
                     } else {
                         MongoDatabaseUtil.deleteUserRoleMappingInBatchMode(dbConnection, mongoQuery, mapRole);
@@ -1203,10 +1206,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 String users[] = {userName};
                 int userIds[] = getUserIDS(dbConnection, users);
                 Map<String, Object> map = new HashMap<>();
-                int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER_ROLE");
-                map.put("UM_ID", userRoleId);
-                map.put("UM_ROLE_ID", roleIds);
-                map.put("UM_USER_ID", userIds[0]);
+                int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection,
+                        MongoDBCoreConstants.UM_USER_ROLE);
+                map.put(MongoDBCoreConstants.UM_ID, userRoleId);
+                map.put(MongoDBCoreConstants.UM_ROLE_ID, roleIds);
+                map.put(MongoDBCoreConstants.UM_USER_ID, userIds[0]);
 
                 if (roles.length > 0) {
                     if (isCaseSensitiveUsername()) {
@@ -1227,8 +1231,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 if (mongoQuery2 == null) {
                     throw new UserStoreException("Mongo query is null. Cannot update role list of user");
                 } else {
-                    if (mongoQuery2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                        map.put("UM_TENANT_ID", tenantId);
+                    if (mongoQuery2.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                        map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                         MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2, map);
                     } else {
                         MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2, map);
@@ -1288,7 +1292,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get all roles list of a user
+     * Get all roles list of a user.
      *
      * @param userName of user to get role list
      * @param filter   if any filtering apply
@@ -1310,17 +1314,17 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     MongoDBCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE);
         }
         MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(this.db, query);
-        prepStmt.setString("UM_USER_NAME", userName);
+        prepStmt.setString(MongoDBCoreConstants.UM_USER_NAME, userName);
 
-        if (MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME_MONGO_QUERY.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            prepStmt.setInt("UM_TENANT_ID", tenantId);
+        if (MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME_MONGO_QUERY.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+            prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
         }
         try {
             DBCursor cursor = prepStmt.find();
             int userId = 0;
             if (cursor.hasNext()) {
 
-                userId = Integer.parseInt(cursor.next().get("UM_ID").toString());
+                userId = Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
             }
             List<String> roles = new ArrayList<>();
             String[] names;
@@ -1328,12 +1332,12 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 throw new UserStoreException("Mongo query is null. Cannot get external role list of user");
             }
             Map<String, Object> map = new HashMap<>();
-            map.put("users.UM_ID", userId);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+            map.put(MongoDBCoreConstants.USERS_UM_ID, userId);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
 
-                map.put("userRole.UM_TENANT_ID", tenantId);
-                map.put("users.UM_TENANT_ID", tenantId);
-                map.put("UM_TENANT_ID", tenantId);
+                map.put(MongoDBCoreConstants.USER_ROLE_UM_TENANT_ID, tenantId);
+                map.put(MongoDBCoreConstants.USERS_UM_ID, tenantId);
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 names = getStringValuesFromDatabase(mongoQuery, map);
             } else {
                 names = getStringValuesFromDatabase(mongoQuery, map);
@@ -1373,7 +1377,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get all shared role list of user
+     * Get all shared role list of user.
      *
      * @param userName     of user to get shared role list
      * @param filter       if any filter
@@ -1401,12 +1405,12 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         List<String> roles = new ArrayList<>();
         try {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
-            prepStmt.setString("UM_USER_NAME", username);
-            prepStmt.setInt("UM_TENANT_ID", tenantId);
+            prepStmt.setString(MongoDBCoreConstants.UM_USER_NAME, username);
+            prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             DBCursor cursor = prepStmt.find();
             while (cursor.hasNext()) {
-                String name = cursor.next().get("UM_ROLE_NAME").toString();
-                int tenant = Integer.parseInt(cursor.next().get("UM_TENANT_ID").toString());
+                String name = cursor.next().get(MongoDBCoreConstants.UM_ROLE_NAME).toString();
+                int tenant = Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_TENANT_ID).toString());
                 //noinspection unused
                 String tenantEntry = UserCoreUtil.addTenantDomainToEntry(name, String.valueOf(tenant));
                 roles.add(name);
@@ -1420,7 +1424,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Add new role to mongodb user store
+     * Add new role to mongodb user store.
      *
      * @param roleName of new role
      * @param userList of new role to add
@@ -1438,12 +1442,12 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         Map<String, Object> mapRole = new HashMap<>();
         try {
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ADD_ROLE);
-            map.put("UM_ROLE_NAME", roleName);
-            int roleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_ROLE");
-            map.put("UM_ID", roleId);
-            map.put("UM_SHARED_ROLE", 0);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                map.put("UM_TENANT_ID", tenantId);
+            map.put(MongoDBCoreConstants.UM_ROLE_NAME, roleName);
+            int roleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection, MongoDBCoreConstants.UM_ROLE);
+            map.put(MongoDBCoreConstants.UM_ID, roleId);
+            map.put(MongoDBCoreConstants.UM_SHARED_ROLE, 0);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 this.updateStringValuesToDatabase(dbConnection, mongoQuery, map);
             } else {
                 this.updateStringValuesToDatabase(dbConnection, mongoQuery, map);
@@ -1460,19 +1464,20 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 }
                 MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(this.db,
                         MongoDBRealmConstants.ADD_USER_TO_ROLE_MONGO_QUERY_CONDITION1);
-                if (mongoQuery2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                if (mongoQuery2.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
                     String mongoCondition = MongoDBRealmConstants.GET_IS_ROLE_EXISTING_MONGO_QUERY;
                     MongoPreparedStatement prepStmt2 = new MongoPreparedStatementImpl(dbConnection, mongoCondition);
-                    prepStmt2.setString("UM_ROLE_NAME", roleName);
-                    prepStmt2.setInt("UM_TENANT_ID", tenantId);
+                    prepStmt2.setString(MongoDBCoreConstants.UM_ROLE_NAME, roleName);
+                    prepStmt2.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                     DBCursor cursor = prepStmt2.find();
-                    roleId = Integer.parseInt(cursor.next().get("UM_ID").toString());
+                    roleId = Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
                     int[] userID = getUserIDS(dbConnection, userList);
-                    int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER_ROLE");
-                    mapRole.put("UM_ID", userRoleId);
-                    mapRole.put("UM_USER_ID", userID);
-                    mapRole.put("UM_ROLE_ID", roleId);
-                    mapRole.put("UM_TENANT_ID", tenantId);
+                    int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection,
+                            MongoDBCoreConstants.UM_USER_ROLE);
+                    mapRole.put(MongoDBCoreConstants.UM_ID, userRoleId);
+                    mapRole.put(MongoDBCoreConstants.UM_USER_ID, userID);
+                    mapRole.put(MongoDBCoreConstants.UM_ROLE_ID, roleId);
+                    mapRole.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                     if (userID.length != 0) {
                         MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2, mapRole);
                     }
@@ -1480,14 +1485,15 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     String mongoCondition = MongoDBRealmConstants.GET_IS_ROLE_EXISTING_MONGO_QUERY;
                     MongoPreparedStatement prepStmt2 = new MongoPreparedStatementImpl(dbConnection, mongoCondition);
                     int roleID;
-                    prepStmt2.setString("UM_ROLE_NAME", roleName);
+                    prepStmt2.setString(MongoDBCoreConstants.UM_ROLE_NAME, roleName);
                     DBCursor cursor = prepStmt.find();
-                    roleID = Integer.parseInt(cursor.next().get("UM_ID").toString());
+                    roleID = Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
                     int[] userID = getUserIDS(dbConnection, userList);
-                    int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER_ROLE");
-                    mapRole.put("UM_ID", userRoleId);
-                    mapRole.put("UM_USER_ID", roleID);
-                    mapRole.put("UM_ROLE_ID", userID);
+                    int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection,
+                            MongoDBCoreConstants.UM_USER_ROLE);
+                    mapRole.put(MongoDBCoreConstants.UM_ID, userRoleId);
+                    mapRole.put(MongoDBCoreConstants.UM_USER_ID, roleID);
+                    mapRole.put(MongoDBCoreConstants.UM_ROLE_ID, userID);
                     if (userID.length != 0) {
                         MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2, mapRole);
                     }
@@ -1506,11 +1512,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         DB dbConnection = loadUserStoreSpecificDataSource();
         try {
             String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.ADD_SHARED_ROLE);
-            map.put("UM_ROLE_NAME", roleName);
-            map.put("UM_SHARED_ROLE", roleName);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+            map.put(MongoDBCoreConstants.UM_ROLE_NAME, roleName);
+            map.put(MongoDBCoreConstants.UM_SHARED_ROLE, roleName);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
 
-                map.put("UM_TENANT_ID", tenantId);
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 this.updateStringValuesToDatabase(dbConnection, mongoQuery, map);
             } else {
                 this.updateStringValuesToDatabase(dbConnection, mongoQuery, map);
@@ -1527,11 +1533,11 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 int roleID[] = getRolesIDS(dbConnection, roles);
                 int[] userID = getUserIDS(dbConnection, userList);
                 Map<String, Object> mapRole = new HashMap<>();
-                mapRole.put("UM_USER_ID", roleID[0]);
-                mapRole.put("UM_ROLE_ID", userID);
-                if (mongoQuery2.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                mapRole.put(MongoDBCoreConstants.UM_USER_ID, roleID[0]);
+                mapRole.put(MongoDBCoreConstants.UM_ROLE_ID, userID);
+                if (mongoQuery2.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
 
-                    mapRole.put("UM_TENANT_ID", tenantId);
+                    mapRole.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                     MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoQuery2,
                             mapRole);
                 } else {
@@ -1557,13 +1563,13 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         for (String user : userList) {
 
             MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(dbConnection, query);
-            if (query.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt("UM_TENANT_ID", tenantId);
+            if (query.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             }
-            prepStmt.setString("UM_USER_NAME", user);
+            prepStmt.setString(MongoDBCoreConstants.UM_USER_NAME, user);
             DBCursor cursor = prepStmt.find();
             if (cursor.hasNext()) {
-                int id = (int) Double.parseDouble(cursor.next().get("UM_ID").toString());
+                int id = (int) Double.parseDouble(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
                 if (id > 0) {
                     userID[index] = id;
                 }
@@ -1575,7 +1581,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Delete given role
+     * Delete given role.
      *
      * @param roleName to delete from user store
      * @throws UserStoreException if any exception occurred
@@ -1594,15 +1600,15 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         try {
             String roles[] = {roleName};
             int roleIds[] = getRolesIDS(dbConnection, roles);
-            map.put("UM_ROLE_ID", roleIds[0]);
-            if (mongoQuery1.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+            map.put(MongoDBCoreConstants.UM_ROLE_ID, roleIds[0]);
+            if (mongoQuery1.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
 
-                map.put("UM_TENANT_ID", tenantId);
-                map.put("UM_ID", roleIds[0]);
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+                map.put(MongoDBCoreConstants.UM_ID, roleIds[0]);
                 this.deleteStringValuesFromDatabase(dbConnection, mongoQuery1, map);
                 this.deleteStringValuesFromDatabase(dbConnection, mongoQuery2, map);
             } else {
-                map.put("UM_ID", roleIds[0]);
+                map.put(MongoDBCoreConstants.UM_ID, roleIds[0]);
                 this.deleteStringValuesFromDatabase(dbConnection, mongoQuery1, map);
                 this.deleteStringValuesFromDatabase(dbConnection, mongoQuery2, map);
             }
@@ -1614,7 +1620,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Update role name of user store
+     * Update role name of user store.
      *
      * @param roleName    to update
      * @param newRoleName to be updated
@@ -1628,7 +1634,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                     " already exists in the system. Please pick another name");
         }
         String mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.UPDATE_ROLE_NAME);
-        map.put("UM_ROLE_NAME", newRoleName);
+        map.put(MongoDBCoreConstants.UM_ROLE_NAME, newRoleName);
         if (mongoQuery == null) {
             throw new UserStoreException("Mongo query is null. Cannot update role name");
         }
@@ -1637,9 +1643,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             roleName = ctx.getRoleName();
             String roles[] = {roleName};
             int roleIds[] = getRolesIDS(dbConnection, roles);
-            map.put("UM_ID", roleIds[0]);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                map.put("UM_TENANT_ID", tenantId);
+            map.put(MongoDBCoreConstants.UM_ID, roleIds[0]);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 this.updateStringValuesToDatabase(dbConnection, mongoQuery, map);
             } else {
                 this.updateStringValuesToDatabase(dbConnection, mongoQuery, map);
@@ -1652,7 +1658,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get role name of user store
+     * Get role name of user store.
      *
      * @param filter       to filter the search
      * @param maxItemLimit to display per page
@@ -1679,20 +1685,20 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             dbConnection = loadUserStoreSpecificDataSource();
             if (dbConnection == null) {
 
-                throw new UserStoreException("null connection");
+                throw new UserStoreException("Null connection");
             }
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_ROLE_LIST);
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
-            prepStmt.setString("UM_ROLE_NAME", filter);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt("UM_TENANT_ID", tenantId);
+            prepStmt.setString(MongoDBCoreConstants.UM_ROLE_NAME, filter);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             }
             DBCursor cursor;
             try {
                 cursor = prepStmt.find();
                 if (cursor != null) {
                     while (cursor.hasNext()) {
-                        String name = cursor.next().get("UM_ROLE_NAME").toString();
+                        String name = cursor.next().get(MongoDBCoreConstants.UM_ROLE_NAME).toString();
                         // Append the domain if exist
                         String domain =
                                 realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
@@ -1714,7 +1720,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get role name of user store
+     * Get role name of user store.
      *
      * @param filter       to filter the search
      * @param maxItemLimit to display per page
@@ -1764,9 +1770,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                         MongoDBCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE);
             }
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
-            prepStmt.setString("UM_USER_NAME", filter);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt("UM_TENANT_ID", tenantId);
+            prepStmt.setString(MongoDBCoreConstants.UM_USER_NAME, filter);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             }
             try {
                 cursor = prepStmt.aggregate();
@@ -1781,7 +1787,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             if (cursor != null) {
                 for (DBObject object : cursor.results()) {
-                    String name = object.get("UM_USER_NAME").toString();
+                    String name = object.get(MongoDBCoreConstants.UM_USER_NAME).toString();
                     if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(name)) {
                         continue;
                     }
@@ -1803,7 +1809,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get internal role names of given user
+     * Get internal role names of given user.
      *
      * @param userNames to filter the search
      * @return String[] of internal roles
@@ -1813,7 +1819,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Check whether the user in given role
+     * Check whether the user in given role.
      *
      * @param userName to filter the search
      * @param roleName to display per page
@@ -1833,7 +1839,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get shared role names of user store
+     * Get shared role names of user store.
      *
      * @param tenantDomain of currently logged in
      * @param filter       to filter the search
@@ -1869,13 +1875,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             }
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_SHARED_ROLE_LIST);
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
-            prepStmt.setString("UM_ROLE_NAME", filter);
+            prepStmt.setString(MongoDBCoreConstants.UM_ROLE_NAME, filter);
             cursor = prepStmt.find();
             // Expected columns UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE
             if (cursor != null) {
                 while (cursor.hasNext()) {
-                    String name = cursor.next().get("UM_SHARED_ROLE").toString();
-                    int roleTenantId = Integer.parseInt(cursor.next().get("UM_TENANT_ID").toString());
+                    String name = cursor.next().get(MongoDBCoreConstants.UM_SHARED_ROLE).toString();
+                    int roleTenantId =
+                            Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_TENANT_ID).toString());
                     // Append the domain if exist
                     String domain =
                             realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
@@ -1896,7 +1903,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * get user list of role
+     * Get user list of role.
      *
      * @param filter   to filter the search
      * @param roleName to search for users
@@ -1919,17 +1926,17 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             if (mongoQuery == null) {
                 throw new UserStoreException("Mongo query is null. Cannot get roles list");
             }
-            map.put("role.UM_ROLE_NAME", roleName);
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                map.put("UM_TENANT_ID", tenantId);
-                map.put("role.UM_TENANT_ID", tenantId);
-                map.put("userRole.UM_TENANT_ID", tenantId);
+            map.put(MongoDBCoreConstants.ROLE_UM_ROLE_NAME, roleName);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+                map.put(MongoDBCoreConstants.ROLE_UM_TENANT_ID, tenantId);
+                map.put(MongoDBCoreConstants.USER_ROLE_UM_TENANT_ID, tenantId);
                 names = getStringValuesFromDatabase(mongoQuery, map);
             } else {
                 names = getStringValuesFromDatabase(mongoQuery, map);
             }
         } else if (ctx.isShared()) {
-            map.put("UM_ROLE_NAME", roleName);
+            map.put(MongoDBCoreConstants.UM_ROLE_NAME, roleName);
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USERS_IN_SHARED_ROLE);
             names = getStringValuesFromDatabase(mongoQuery, map);
         }
@@ -1951,7 +1958,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get profile names of user
+     * Get profile names of user.
      *
      * @param userName to  search
      * @return String[] of profile names
@@ -1971,17 +1978,17 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
         MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(this.db,
                 MongoDBRealmConstants.GET_PROFILE_NAMES_FOR_USER_MONGO_QUERY_CONDITION);
-        prepStmt.setInt("UM_TENANT_ID", tenantId);
-        prepStmt.setString("UM_USER_NAME", userName);
+        prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+        prepStmt.setString(MongoDBCoreConstants.UM_USER_NAME, userName);
         String[] names = null;
         try {
             DBCursor cursor = prepStmt.find();
             if (cursor.hasNext()) {
-                int userId = Integer.parseInt(cursor.next().get("UM_ID").toString());
+                int userId = Integer.parseInt(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
                 Map<String, Object> map = new HashMap<>();
-                map.put("UM_USER_ID", userId);
-                if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                    map.put("UM_TENANT_ID", tenantId);
+                map.put(MongoDBCoreConstants.UM_USER_ID, userId);
+                if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                    map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                     names = getDistinctStringValues(mongoQuery, map);
                 } else {
                     names = getDistinctStringValues(mongoQuery, map);
@@ -2009,7 +2016,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get all profile names
+     * Get all profile names.
      *
      * @return String[] of profile names
      * @throws UserStoreException if any exception occurred
@@ -2021,8 +2028,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
         String[] names;
         Map<String, Object> map = new HashMap<>();
-        if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            map.put("UM_TENANT_ID", tenantId);
+        if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+            map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             names = getDistinctStringValues(mongoQuery, map);
         } else {
             names = getDistinctStringValues(mongoQuery, map);
@@ -2031,7 +2038,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Check the status if read only
+     * Check the status if read only.
      *
      * @return boolean status
      */
@@ -2042,7 +2049,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get user id of given user
+     * Get user id of given user.
      *
      * @param username to find userId
      * @return int userId
@@ -2051,7 +2058,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     public int getUserId(String username) throws UserStoreException {
         String mongoQuery;
         Map<String, Object> map = new HashMap<>();
-        map.put("UM_USER_NAME", username);
+        map.put(MongoDBCoreConstants.UM_USER_NAME, username);
         if (isCaseSensitiveUsername()) {
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME);
         } else {
@@ -2064,8 +2071,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         int id;
         DB dbConnection = loadUserStoreSpecificDataSource();
         try {
-            if (mongoQuery.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                map.put("UM_TENANT_ID", tenantId);
+            if (mongoQuery.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 id = MongoDatabaseUtil.getIntegerValueFromDatabase(dbConnection, mongoQuery, map);
             } else {
                 id = MongoDatabaseUtil.getIntegerValueFromDatabase(dbConnection, mongoQuery, map);
@@ -2079,7 +2086,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get tenantId of given user
+     * Get tenantId of given user.
      *
      * @param username to find tenantId
      * @return int tenantId
@@ -2090,7 +2097,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException("Unauthorized");
         }
         Map<String, Object> map = new HashMap<>();
-        map.put("UM_USER_NAME", username);
+        map.put(MongoDBCoreConstants.UM_USER_NAME, username);
         String mongoQuery;
         if (isCaseSensitiveUsername()) {
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_TENANT_ID_FROM_USERNAME);
@@ -2114,7 +2121,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get currently logged in tenantId
+     * Get currently logged in tenantId.
      *
      * @return int tenantId
      */
@@ -2123,7 +2130,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get properties of given tenant
+     * Get properties of given tenant.
      *
      * @param tenant to  search for properties
      * @return Map of properties
@@ -2181,19 +2188,19 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Load default user store configuration properties
+     * Load default user store configuration properties.
      *
      * @return Properties of default user store
      */
     public Properties getDefaultUserStoreProperties() {
-        Property[] mandatoryProperties = MongoDBUserStoreConstants.MONGODB_UM_MANDATORY_PROPERTIES.toArray(
-                new Property[MongoDBUserStoreConstants.MONGODB_UM_MANDATORY_PROPERTIES.size()]
+        Property[] mandatoryProperties = MongoDBUserStoreProperties.MONGODB_UM_MANDATORY_PROPERTIES.toArray(
+                new Property[MongoDBUserStoreProperties.MONGODB_UM_MANDATORY_PROPERTIES.size()]
         );
-        Property[] optionalProperties = MongoDBUserStoreConstants.MONGODB_UM_OPTIONAL_PROPERTIES.toArray(
-                new Property[MongoDBUserStoreConstants.MONGODB_UM_OPTIONAL_PROPERTIES.size()]
+        Property[] optionalProperties = MongoDBUserStoreProperties.MONGODB_UM_OPTIONAL_PROPERTIES.toArray(
+                new Property[MongoDBUserStoreProperties.MONGODB_UM_OPTIONAL_PROPERTIES.size()]
         );
-        Property[] advancedProperties = MongoDBUserStoreConstants.MONGODB_UM_ADVANCED_PROPERTIES.toArray(
-                new Property[MongoDBUserStoreConstants.MONGODB_UM_ADVANCED_PROPERTIES.size()]
+        Property[] advancedProperties = MongoDBUserStoreProperties.MONGODB_UM_ADVANCED_PROPERTIES.toArray(
+                new Property[MongoDBUserStoreProperties.MONGODB_UM_ADVANCED_PROPERTIES.size()]
         );
         Properties properties = new Properties();
         properties.setMandatoryProperties(mandatoryProperties);
@@ -2203,7 +2210,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get properties of tenant
+     * Get properties of tenant.
      *
      * @param tenant to  search
      * @return Map of properties
@@ -2213,7 +2220,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * MongoDB User store supports bulk import
+     * MongoDB User store supports bulk import.
      *
      * @return Status of bulk import support
      */
@@ -2222,7 +2229,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Get realm configuration
+     * Get realm configuration.
      *
      * @return RealmConfiguration of logged in users
      */
@@ -2257,29 +2264,29 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 saltValue = Base64.encode(bytes);
             }
             String password = this.preparePassword(credentialObj, saltValue);
-            map.put("UM_USER_PASSWORD", password);
-            map.put("UM_USER_NAME", userName);
-            map.put("UM_REQUIRE_CHANGE", requirePasswordChange);
-            map.put("UM_CHANGED_TIME", new Date());
-            int id = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER");
-            map.put("UM_ID", id);
+            map.put(MongoDBCoreConstants.UM_USER_PASSWORD, password);
+            map.put(MongoDBCoreConstants.UM_USER_NAME, userName);
+            map.put(MongoDBCoreConstants.UM_REQUIRE_CHANGE, requirePasswordChange);
+            map.put(MongoDBCoreConstants.UM_CHANGED_TIME, new Date());
+            int id = MongoDatabaseUtil.getIncrementedSequence(dbConnection, MongoDBCoreConstants.UM_USER);
+            map.put(MongoDBCoreConstants.UM_ID, id);
 
-            // do all 4 possibilities
-            if (mongoStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue == null)) {
-                map.put("UM_SALT_VALUE", "");
-                map.put("UM_TENANT_ID", tenantId);
+            // Do all 4 possibilities
+            if (mongoStmt1.contains(MongoDBCoreConstants.UM_TENANT_ID) && (saltValue == null)) {
+                map.put(MongoDBCoreConstants.UM_SALT_VALUE, "");
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 this.updateUserValue(dbConnection, mongoStmt1, map);
-            } else if (mongoStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue != null)) {
-                map.put("UM_SALT_VALUE", saltValue);
-                map.put("UM_TENANT_ID", tenantId);
+            } else if (mongoStmt1.contains(MongoDBCoreConstants.UM_TENANT_ID) && (saltValue != null)) {
+                map.put(MongoDBCoreConstants.UM_SALT_VALUE, saltValue);
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 this.updateUserValue(dbConnection, mongoStmt1, map);
-            } else if (!mongoStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue == null)) {
-                map.put("UM_SALT_VALUE", "");
-                map.put("UM_TENANT_ID", 0);
+            } else if (!mongoStmt1.contains(MongoDBCoreConstants.UM_TENANT_ID) && (saltValue == null)) {
+                map.put(MongoDBCoreConstants.UM_SALT_VALUE, "");
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, 0);
                 this.updateUserValue(dbConnection, mongoStmt1, map);
             } else {
-                map.put("UM_SALT_VALUE", saltValue);
-                map.put("UM_TENANT_ID", 0);
+                map.put(MongoDBCoreConstants.UM_SALT_VALUE, saltValue);
+                map.put(MongoDBCoreConstants.UM_TENANT_ID, 0);
                 this.updateUserValue(dbConnection, mongoStmt1, map);
             }
 
@@ -2310,11 +2317,12 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                 int rolesID[] = getRolesIDS(dbConnection, roles);
                 String[] users = {userName};
                 int userID[] = getUserIDS(dbConnection, users);
-                int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER_ROLE");
-                mapRole.put("UM_ID", userRoleId);
-                mapRole.put("UM_TENANT_ID", tenantId);
-                mapRole.put("UM_USER_ID", userID[0]);
-                mapRole.put("UM_ROLE_ID", rolesID);
+                int userRoleId = MongoDatabaseUtil.getIncrementedSequence(dbConnection,
+                        MongoDBCoreConstants.UM_USER_ROLE);
+                mapRole.put(MongoDBCoreConstants.UM_ID, userRoleId);
+                mapRole.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
+                mapRole.put(MongoDBCoreConstants.UM_USER_ID, userID[0]);
+                mapRole.put(MongoDBCoreConstants.UM_ROLE_ID, rolesID);
                 MongoDatabaseUtil.updateUserRoleMappingInBatchMode(dbConnection, mongoStmt2, mapRole);
 
                 if (claims != null) {
@@ -2328,8 +2336,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
                         String propValue = entry.getValue();
                         int userId = getUserId(userName);
                         Map<String, Object> mapProperties = new HashMap<>();
-                        mapProperties.put("UM_USER_ID", userId);
-                        mapProperties.put("UM_PROFILE_ID", profileName);
+                        mapProperties.put(MongoDBCoreConstants.UM_USER_ID, userId);
+                        mapProperties.put(MongoDBCoreConstants.UM_PROFILE_ID, profileName);
                         if (propValue.length() > 0) {
                             mapProperties.put(propName, propValue);
                         }
@@ -2352,14 +2360,14 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         int index = 0;
         for (String role : roles) {
             MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(dbConnection, query);
-            if (query.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                prepStmt.setInt("UM_TENANT_ID", tenantId);
+            if (query.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+                prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             }
-            prepStmt.setString("UM_ROLE_NAME", role);
+            prepStmt.setString(MongoDBCoreConstants.UM_ROLE_NAME, role);
             DBCursor cursor = prepStmt.find();
             if (cursor.hasNext()) {
 
-                int id = (int) Double.parseDouble(cursor.next().get("UM_ID").toString());
+                int id = (int) Double.parseDouble(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
                 if (id > 0) {
                     rolesID[index] = id;
                 }
@@ -2371,7 +2379,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Update user values
+     * Update user values.
      *
      * @param connection to  mongodb
      * @param query      to update user value to mongodb
@@ -2384,7 +2392,9 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         try {
             MongoPreparedStatement prepStmt = new MongoPreparedStatementImpl(connection, query);
             for (String key : keys) {
-                if (!(key.equals("collection") || key.equals("projection") || key.equals("$set"))) {
+                if (!(MongoDBCoreConstants.COLLECTION_FIELD.equals(key) ||
+                        MongoDBCoreConstants.PROJECTION_FIELD.equals(key) ||
+                        MongoDBCoreConstants.SET_FIELD.equals(key))) {
                     for (Map.Entry<String, Object> entry : map.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -2415,7 +2425,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Add user property
+     * Add user property.
      *
      * @param dbConnection Connection to mongodb
      * @param map          User property
@@ -2426,8 +2436,8 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (mongoStmt == null) {
             throw new UserStoreException("Mongo query is null. Cannot add property");
         }
-        if (mongoStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-            map.put("UM_TENANT_ID", tenantId);
+        if (mongoStmt.contains(MongoDBCoreConstants.UM_TENANT_ID)) {
+            map.put(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
             updateUserClaimValuesToDatabase(dbConnection, map, false);
         } else {
             updateUserClaimValuesToDatabase(dbConnection, map, false);
@@ -2435,7 +2445,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * Find if user name exists
+     * Find if user name exists.
      *
      * @param userName to check
      * @return boolean status if user exists or not
@@ -2446,18 +2456,21 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         if (this.db == null) {
             this.db = loadUserStoreSpecificDataSource();
         }
-        DBCollection collection = this.db.getCollection("UM_USER");
+        DBCollection collection = this.db.getCollection(MongoDBCoreConstants.UM_USER);
         if ("true".equals(isUnique) && !CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
-            BasicDBObject uniqueUser = new BasicDBObject("UM_USER_NAME", userName);
+            BasicDBObject uniqueUser = new BasicDBObject(MongoDBCoreConstants.UM_USER_NAME, userName);
             DBCursor cursor = collection.find(uniqueUser);
             isExisting = cursor.hasNext();
         } else {
             BasicDBObject userSearch;
             if (isCaseSensitiveUsername()) {
-                userSearch = new BasicDBObject("UM_USER_NAME", userName).append("UM_TENANT_ID", this.tenantId);
+                userSearch = new BasicDBObject(MongoDBCoreConstants.UM_USER_NAME, userName).
+                        append(MongoDBCoreConstants.UM_TENANT_ID, this.tenantId);
             } else {
-                userSearch = new BasicDBObject("UM_USER_NAME", new BasicDBObject("$regex", userName).
-                        append("$options", "i")).append("UM_TENANT_ID", this.tenantId);
+                userSearch = new BasicDBObject(MongoDBCoreConstants.UM_USER_NAME,
+                        new BasicDBObject(MongoDBCoreConstants.REGEX_FIELD, userName).append(
+                                MongoDBCoreConstants.OPTIONS_FIELD, MongoDBCoreConstants.CASE_INSENSITIVE_OPTION)).
+                        append(MongoDBCoreConstants.UM_TENANT_ID, this.tenantId);
             }
             DBCursor cursor = collection.find(userSearch);
             isExisting = cursor.hasNext();

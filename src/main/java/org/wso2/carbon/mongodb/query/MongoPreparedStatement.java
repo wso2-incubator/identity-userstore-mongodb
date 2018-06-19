@@ -27,7 +27,7 @@ import com.mongodb.AggregationOutput;
 import com.mongodb.BulkWriteResult;
 
 /**
- * MongoDB prepared statement interface
+ * MongoDB prepared statement interface.
  */
 public interface MongoPreparedStatement {
 

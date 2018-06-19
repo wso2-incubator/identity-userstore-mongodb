@@ -40,12 +40,13 @@ import org.json.JSONObject;
 import org.wso2.carbon.mongodb.query.MongoPreparedStatement;
 import org.wso2.carbon.mongodb.query.MongoPreparedStatementImpl;
 import org.wso2.carbon.mongodb.query.MongoDBQueryException;
+import org.wso2.carbon.mongodb.user.store.mgt.MongoDBCoreConstants;
 import org.wso2.carbon.mongodb.user.store.mgt.MongoDBRealmConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 
 /**
- * MongoDB database operations
+ * MongoDB database operations.
  */
 public class MongoDatabaseUtil {
 
@@ -70,6 +71,8 @@ public class MongoDatabaseUtil {
     }
 
     /**
+     * Create the realm data source.
+     *
      * @param realmConfiguration of user store
      * @return DB connection
      * @throws UserStoreException if any error occurred
@@ -138,7 +141,8 @@ public class MongoDatabaseUtil {
         try {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
             for (String key : keys) {
-                if (!(key.equals("collection") || key.equals("projection"))) {
+                if (!(MongoDBCoreConstants.COLLECTION_FIELD.equals(key) ||
+                        MongoDBCoreConstants.PROJECTION_FIELD.equals(key))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -154,7 +158,7 @@ public class MongoDatabaseUtil {
             }
             DBCursor cursor = prepStmt.find();
             while (cursor.hasNext()) {
-                value = (int) Double.parseDouble(cursor.next().get("UM_ID").toString());
+                value = (int) Double.parseDouble(cursor.next().get(MongoDBCoreConstants.UM_ID).toString());
             }
             return value;
         } catch (MongoDBQueryException e) {
@@ -187,7 +191,9 @@ public class MongoDatabaseUtil {
             String listKey = "";
             while (searchKeys.hasNext()) {
                 String key = searchKeys.next();
-                if (!(key.equals("collection") || key.equals("projection") || key.equals("$set"))) {
+                if (!(MongoDBCoreConstants.COLLECTION_FIELD.equals(key) ||
+                        MongoDBCoreConstants.PROJECTION_FIELD.equals(key) ||
+                        MongoDBCoreConstants.SET_FIELD.equals(key))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (entry.getValue() == null) {
@@ -212,8 +218,9 @@ public class MongoDatabaseUtil {
                         if (updateTrue(keys)) {
                             prepStmt.updateBatch();
                         } else {
-                            int Id = MongoDatabaseUtil.getIncrementedSequence(dbConnection, "UM_USER_ROLE");
-                            prepStmt.setInt("UM_ID", Id);
+                            int Id = MongoDatabaseUtil.getIncrementedSequence(dbConnection,
+                                    MongoDBCoreConstants.UM_USER_ROLE);
+                            prepStmt.setInt(MongoDBCoreConstants.UM_ID, Id);
                             prepStmt.addBatch();
                         }
                     }
@@ -259,14 +266,14 @@ public class MongoDatabaseUtil {
         MongoPreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
-            int[] roleIDS = (int[]) params.get("UM_ROLE_ID");
+            int[] roleIDS = (int[]) params.get(MongoDBCoreConstants.UM_ROLE_ID);
             for (int roleID : roleIDS) {
                 prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
-                int userID = (Integer) params.get("UM_USER_ID");
-                prepStmt.setInt("UM_USER_ID", userID);
-                prepStmt.setInt("UM_ROLE_ID", roleID);
-                int tenantID = (Integer) params.get("UM_TENANT_ID");
-                prepStmt.setInt("UM_TENANT_ID", tenantID);
+                int userID = (Integer) params.get(MongoDBCoreConstants.UM_USER_ID);
+                prepStmt.setInt(MongoDBCoreConstants.UM_USER_ID, userID);
+                prepStmt.setInt(MongoDBCoreConstants.UM_ROLE_ID, roleID);
+                int tenantID = (Integer) params.get(MongoDBCoreConstants.UM_TENANT_ID);
+                prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantID);
                 prepStmt.remove();
             }
             localConnection = true;
@@ -294,27 +301,27 @@ public class MongoDatabaseUtil {
         MongoPreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
-            int[] userIDS = (int[]) params.get("UM_USER_ID");
+            int[] userIDS = (int[]) params.get(MongoDBCoreConstants.UM_USER_ID);
             for (int userID : userIDS) {
                 prepStmt = new MongoPreparedStatementImpl(dbConnection, stmt);
-                int roleID = (Integer) params.get("UM_ROLE_ID");
-                prepStmt.setInt("UM_USER_ID", userID);
-                prepStmt.setInt("UM_ROLE_ID", roleID);
-                Object roleTenantValue = params.get("UM_ROLE_TENANT_ID");
-                Object userTenantValue = params.get("UM_USER_TENANT_ID");
-                Object tenantValue = params.get("UM_TENANT_ID");
+                int roleID = (Integer) params.get(MongoDBCoreConstants.UM_ROLE_ID);
+                prepStmt.setInt(MongoDBCoreConstants.UM_USER_ID, userID);
+                prepStmt.setInt(MongoDBCoreConstants.UM_ROLE_ID, roleID);
+                Object roleTenantValue = params.get(MongoDBCoreConstants.UM_ROLE_TENANT_ID);
+                Object userTenantValue = params.get(MongoDBCoreConstants.UM_USER_TENANT_ID);
+                Object tenantValue = params.get(MongoDBCoreConstants.UM_TENANT_ID);
 
                 if (roleTenantValue != null) {
                     int roleTenantId = (Integer) roleTenantValue;
-                    prepStmt.setInt("UM_ROLE_TENANT_ID", roleTenantId);
+                    prepStmt.setInt(MongoDBCoreConstants.UM_ROLE_TENANT_ID, roleTenantId);
                 }
                 if (userTenantValue != null) {
                     int userTenantId = (Integer) userTenantValue;
-                    prepStmt.setInt("UM_USER_TENANT_ID", userTenantId);
+                    prepStmt.setInt(MongoDBCoreConstants.UM_USER_TENANT_ID, userTenantId);
                 }
                 if (tenantValue != null) {
                     int tenantId = (Integer) tenantValue;
-                    prepStmt.setInt("UM_TENANT_ID", tenantId);
+                    prepStmt.setInt(MongoDBCoreConstants.UM_TENANT_ID, tenantId);
                 }
                 prepStmt.remove();
             }
@@ -337,7 +344,7 @@ public class MongoDatabaseUtil {
      */
     public static boolean updateTrue(List<String> keys) {
         for (String key : keys) {
-            if (key.contains("$set")) {
+            if (key.contains(MongoDBCoreConstants.SET_FIELD)) {
                 return true;
             }
         }
@@ -359,7 +366,7 @@ public class MongoDatabaseUtil {
             if (stmt.get(key) instanceof JSONObject) {
                 JSONObject value = stmt.getJSONObject(key);
                 key = value.keys().next();
-                if (key.equals("$set")) {
+                if (MongoDBCoreConstants.SET_FIELD.equals(key)) {
 
                     String names[] = JSONObject.getNames(value.getJSONObject(key));
                     for (String name : names) {
@@ -376,7 +383,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * Close the DB connection
+     * Close the DB connection.
      *
      * @param dbConnection to close
      */
@@ -401,7 +408,7 @@ public class MongoDatabaseUtil {
     }
 
     /**
-     * Close the connection to the database
+     * Close the connection to the database.
      *
      * @param dbConnection to be closed
      */
@@ -487,7 +494,7 @@ public class MongoDatabaseUtil {
         JSONObject jsonKeys = new JSONObject(mongoQuery);
         List<String> keys;
         if (isAggregate) {
-            keys = getKeys(jsonKeys.getJSONObject("$match"));
+            keys = getKeys(jsonKeys.getJSONObject(MongoDBCoreConstants.MATCH_FIELD));
         } else {
             keys = getKeys(jsonKeys);
         }
@@ -496,7 +503,8 @@ public class MongoDatabaseUtil {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
             while (searchKeys.hasNext()) {
                 String key = searchKeys.next();
-                if (!(key.equals("collection") || key.equals("projection"))) {
+                if (!(MongoDBCoreConstants.COLLECTION_FIELD.equals(key) ||
+                        MongoDBCoreConstants.PROJECTION_FIELD.equals(key))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (params.get(key) == null) {
@@ -526,10 +534,10 @@ public class MongoDatabaseUtil {
                 Iterable<DBObject> ite = result.results();
                 List<String> lst = new ArrayList<>();
                 Iterator<DBObject> foundResults = ite.iterator();
-                List<String> projection = getKeys(jsonKeys.getJSONObject("$project"));
+                List<String> projection = getKeys(jsonKeys.getJSONObject(MongoDBCoreConstants.PROJECT_FIELD));
                 String projectionKey = "";
                 for (String pKey : projection) {
-                    if (pKey.equals("_id")) {
+                    if (pKey.equals(MongoDBCoreConstants.ID)) {
                         continue;
                     }
                     projectionKey = pKey;
@@ -557,21 +565,22 @@ public class MongoDatabaseUtil {
      * @return int sequence
      */
     public static int getIncrementedSequence(DB dbConnection, String collection) {
-        DBObject checkObject = new BasicDBObject("name", collection);
-        DBCollection collect = dbConnection.getCollection("COUNTERS");
+        DBObject checkObject = new BasicDBObject(MongoDBCoreConstants.NAME, collection);
+        DBCollection collect = dbConnection.getCollection(MongoDBCoreConstants.COUNTERS);
         DBCursor cursor = collect.find(checkObject);
         int seq = 0;
         boolean isEmpty = true;
         while (cursor.hasNext()) {
-            double value = Double.parseDouble(cursor.next().get("seq").toString());
+            double value = Double.parseDouble(cursor.next().get(MongoDBCoreConstants.SEQ).toString());
             seq = (int) value;
             isEmpty = false;
         }
         if (isEmpty) {
-            collect.insert(new BasicDBObject("name", collection).append("seq", ++seq));
+            collect.insert(new BasicDBObject(MongoDBCoreConstants.NAME, collection).append(MongoDBCoreConstants.SEQ,
+                    ++seq));
         } else {
-            collect.update(new BasicDBObject("name", collection), new BasicDBObject("$set",
-                    new BasicDBObject("seq", ++seq)));
+            collect.update(new BasicDBObject(MongoDBCoreConstants.NAME, collection), new BasicDBObject(
+                    MongoDBCoreConstants.SET_FIELD, new BasicDBObject(MongoDBCoreConstants.SEQ, ++seq)));
         }
         return seq;
     }
@@ -583,7 +592,6 @@ public class MongoDatabaseUtil {
      * @param mongoQuery   to execute
      * @param params       to filter from database
      * @return String[] distinct string values
-     *
      * @throws MongoDBQueryException if distinct operation of MongoPreparedStatement fails
      */
     public static String[] getDistinctStringValuesFromDatabase(DB dbConnection, String mongoQuery, Map<String,
@@ -599,7 +607,8 @@ public class MongoDatabaseUtil {
             prepStmt = new MongoPreparedStatementImpl(dbConnection, mongoQuery);
             while (searchKeys.hasNext()) {
                 String key = searchKeys.next();
-                if (!(key.equals("collection") || key.equals("projection"))) {
+                if (!(MongoDBCoreConstants.COLLECTION_FIELD.equals(key) ||
+                        MongoDBCoreConstants.PROJECTION_FIELD.equals(key))) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
                         if (entry.getKey().equals(key)) {
                             if (params.get(key) == null) {

@@ -19,7 +19,7 @@
 package org.wso2.carbon.mongodb.user.store.mgt.caseinsensitive;
 
 /**
- * Case insensitive MongoDB queries
+ * Case insensitive MongoDB queries.
  */
 public class MongoDBCaseInsensitiveConstants {
 
@@ -125,7 +125,7 @@ public class MongoDBCaseInsensitiveConstants {
 
 
     /**
-     * Private constructor to prevent other classes from creating objects of this class
+     * Private constructor to prevent other classes from creating objects of this class.
      */
     private MongoDBCaseInsensitiveConstants() {
     }
