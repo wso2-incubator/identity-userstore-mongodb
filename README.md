@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/pranavan15/identity-userstore-mongodb.svg?branch=master)](https://travis-ci.org/pranavan15/identity-userstore-mongodb)
 
 # MongoDB User Store Extension for WSO2 IS
 
