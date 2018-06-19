@@ -28,6 +28,14 @@
     <description>MongoDB user store extension for WSO2 product-IS</description>
     <url>http://wso2.org</url>
 
+    <scm>
+        <url>https://github.com/wso2-extensions/identity-userstore-mongodb.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-userstore-mongodb.git
+        </developerConnection>
+        <connection>scm:git:https://github.com/wso2-extensions/identity-userstore-mongodb.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <repositories>
         <repository>
             <id>wso2-nexus</id>
@@ -89,6 +97,18 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <preparationGoals>clean install</preparationGoals>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.version}</version>
                 <configuration>
@@ -96,6 +116,11 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>${maven.buildnumber.plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -167,6 +192,7 @@
         <!-- Project version range -->
         <org.wso2.carbon.mongodb.user.store.mgt.version.range>[1.0.0-SNAPSHOT, 2.0.0-SNAPSHOT)
         </org.wso2.carbon.mongodb.user.store.mgt.version.range>
+        <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
     </properties>
 
 </project>
