@@ -2480,7 +2480,6 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
         }
 
         String mongoQuery;
-        Map<String, Object> map = new HashMap<>();
 
         if (isCaseSensitiveUsername()) {
             mongoQuery = realmConfig.getUserStoreProperty(MongoDBRealmConstants.GET_USER_ID_FROM_USERNAME);

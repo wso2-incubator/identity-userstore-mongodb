@@ -19,7 +19,7 @@ import java.util.stream.StreamSupport;
 public class QueryTest {
 
     public static void main(String[] args) {
-        MongoClientURI clientURI = new MongoClientURI("mongodb://wso2_carbon_db:wso2_carbon_db@10.42.0.1:27017/wso2_carbon_db?minPoolSize=10&maxPoolSize=1000&waitQueueMultiple=10");
+        MongoClientURI clientURI = new MongoClientURI("mongodb://wso2_carbon_db:wso2_carbon_db@0.0.0.0:27017/wso2_carbon_db?minPoolSize=10&maxPoolSize=1000&waitQueueMultiple=10");
         MongoClient mongoClient = new MongoClient(clientURI);
         System.out.println("mongoClientOptions: " + mongoClient.getMongoClientOptions().toString());
         DB db = mongoClient.getDB(clientURI.getDatabase());
