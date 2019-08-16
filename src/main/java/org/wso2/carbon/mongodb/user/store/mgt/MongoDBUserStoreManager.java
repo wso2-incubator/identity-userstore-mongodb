@@ -87,7 +87,7 @@ public class MongoDBUserStoreManager extends AbstractUserStoreManager {
 
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static DataSource dataSourceLocal = null;
-    private final Log log = LogFactory.getLog(MongoDBUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(MongoDBUserStoreManager.class);
     private DB db;
     private SecureRandom random = new SecureRandom();
 
