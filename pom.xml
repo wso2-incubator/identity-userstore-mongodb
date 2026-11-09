@@ -231,7 +231,7 @@
         <carbon.kernel.version>4.4.26</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <!-- Json version -->
-        <json.version>20180130</json.version>
+        <json.version>20260719</json.version>
         <!-- Commons logging version -->
         <commons.logging.version>1.2</commons.logging.version>
         <commons.logging.osgi.version.range>[1.1,2.0)</commons.logging.osgi.version.range>
